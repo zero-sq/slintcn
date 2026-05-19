@@ -38,6 +38,14 @@
     "dialog": {
       "files": ["components/dialog.slint"],
       "requires": ["theme", "popup-helpers", "button", "separator"]
+    },
+    "alert-dialog": {
+      "files": ["components/alert-dialog.slint"],
+      "requires": ["theme", "popup-helpers", "button", "separator"]
+    },
+    "sheet": {
+      "files": ["components/sheet.slint"],
+      "requires": ["theme", "popup-helpers"]
     }
   }
 }

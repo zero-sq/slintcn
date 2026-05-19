@@ -9,6 +9,8 @@ import { Badge, BadgeVariant } from "slintcn/components/badge.slint";
 import { Separator, SeparatorOrientation } from "slintcn/components/separator.slint";
 import { Label, LabelVariant } from "slintcn/components/label.slint";
 import { Dialog } from "slintcn/components/dialog.slint";
+import { AlertDialog } from "slintcn/components/alert-dialog.slint";
+import { Sheet, SheetSide } from "slintcn/components/sheet.slint";
 
 export component AppWindow inherits Window {
     title: "slintcn showcase";
@@ -17,6 +19,8 @@ export component AppWindow inherits Window {
     background: Tokens.color-background;
 
     in-out property <bool> dialog-open: false;
+    in-out property <bool> alert-open: false;
+    in-out property <bool> sheet-open: false;
 
     VerticalLayout {
         padding: 24px;
@@ -79,10 +83,20 @@ export component AppWindow inherits Window {
                 text: "Open Dialog";
                 clicked => { root.dialog-open = true; }
             }
+            Button {
+                variant: ButtonVariant.destructive;
+                text: "Delete account";
+                clicked => { root.alert-open = true; }
+            }
+            Button {
+                variant: ButtonVariant.outline;
+                text: "Open Sheet";
+                clicked => { root.sheet-open = true; }
+            }
         }
     }
 
-    // Dialog must be the LAST child of Window so it renders on top.
+    // Overlays must be the LAST children of Window so they render on top.
     Dialog {
         width: parent.width;
         height: parent.height;
@@ -90,5 +104,24 @@ export component AppWindow inherits Window {
         title: "Confirm your action";
         description: "This is a slintcn Dialog primitive. Press Escape or click the backdrop to dismiss.";
         close-label: "Got it";
+    }
+
+    AlertDialog {
+        width: parent.width;
+        height: parent.height;
+        open <=> root.alert-open;
+        title: "Delete this account?";
+        description: "This action is permanent. All workspace data tied to the account will be removed.";
+        action-label: "Delete";
+        cancel-label: "Keep account";
+    }
+
+    Sheet {
+        width: parent.width;
+        height: parent.height;
+        open <=> root.sheet-open;
+        side: SheetSide.right;
+        title: "Filters";
+        description: "Adjust the visible content";
     }
 }

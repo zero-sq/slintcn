@@ -1,0 +1,105 @@
+// slintcn Sheet — side-anchored panel (drawer).
+//
+// Mount as the LAST child of Window, sized to the window via
+// `width: parent.width; height: parent.height`. `side` controls anchor edge
+// and slide direction. Panel uses fixed cross-axis dimension (360 / 320 px);
+// resize via `panel-extent` if you need a different drawer width.
+
+import { Tokens } from "../theme/tokens.slint";
+import { Scrim } from "popup-helpers.slint";
+
+export enum SheetSide { top, right, bottom, left }
+
+export component Sheet inherits Rectangle {
+    in-out property <bool> open: false;
+    in property <SheetSide> side: SheetSide.right;
+    in property <string> title;
+    in property <string> description;
+    in property <bool>   dismiss-on-backdrop: true;
+    // Cross-axis dimension of the panel: width for left/right, height for top/bottom.
+    in property <length> panel-extent: 360px;
+    callback dismissed();
+
+    background: transparent;
+
+    property <bool> is-horizontal:
+        side == SheetSide.left || side == SheetSide.right;
+
+    Scrim {
+        x: 0; y: 0;
+        width:  root.width;
+        height: root.height;
+        shown: root.open;
+        clicked => {
+            if (root.dismiss-on-backdrop) {
+                root.open = false;
+                root.dismissed();
+            }
+        }
+    }
+
+    panel := Rectangle {
+        background: Tokens.color-card;
+        border-color: Tokens.color-border-hairline;
+        border-width: 1px;
+        drop-shadow-blur:     Tokens.shadow-e3-blur;
+        drop-shadow-offset-y: Tokens.shadow-e3-offset-y;
+        drop-shadow-color:    Tokens.shadow-e3-color;
+
+        width:  root.is-horizontal ? root.panel-extent : root.width;
+        height: root.is-horizontal ? root.height       : root.panel-extent;
+
+        x: side == SheetSide.left
+            ? (root.open ? 0px : -self.width) :
+           side == SheetSide.right
+            ? (root.open ? root.width - self.width : root.width) :
+           /* top/bottom */ 0px;
+
+        y: side == SheetSide.top
+            ? (root.open ? 0px : -self.height) :
+           side == SheetSide.bottom
+            ? (root.open ? root.height - self.height : root.height) :
+           /* left/right */ 0px;
+
+        animate x, y {
+            duration: Tokens.motion-base;
+            easing: Tokens.motion-easing-standard;
+        }
+
+        VerticalLayout {
+            padding: Tokens.spacing-lg;
+            spacing: Tokens.spacing-md;
+
+            VerticalLayout {
+                spacing: 4px;
+                if root.title != "": Text {
+                    text: root.title;
+                    color: Tokens.color-foreground;
+                    font-size: 18px;
+                    font-weight: Tokens.typography-weight-semibold;
+                }
+                if root.description != "": Text {
+                    text: root.description;
+                    color: Tokens.color-muted-foreground;
+                    font-size: Tokens.typography-body-size;
+                    wrap: word-wrap;
+                }
+            }
+
+            @children
+        }
+    }
+
+    forward-focus: focus-scope;
+    focus-scope := FocusScope {
+        enabled: root.open;
+        key-pressed(event) => {
+            if (event.text == "\u{1b}") {
+                root.open = false;
+                root.dismissed();
+                return accept;
+            }
+            return reject;
+        }
+    }
+}

@@ -119,6 +119,51 @@ async function cmdInit(cwd) {
   return resolveConfig(JSON.parse(template), cwd);
 }
 
+/**
+ * Topologically resolve a set of requested install names — including the
+ * special "theme" pseudo-name — into a flat install order, deduplicated,
+ * with each name's dependencies preceding it. Throws on unknown names.
+ */
+export function resolveInstallOrder(requestedNames, registry) {
+  const ordered = [];
+  const visited = new Set();
+  const visit = (name) => {
+    if (visited.has(name)) return;
+    visited.add(name);
+    if (name === "theme") {
+      ordered.push("theme");
+      return;
+    }
+    const spec = registry.components?.[name];
+    if (!spec) {
+      const available = ["theme", ...Object.keys(registry.components ?? {})];
+      throw new Error(`Unknown component: ${name}. Available: ${available.join(", ")}`);
+    }
+    for (const req of spec.requires ?? []) visit(req);
+    ordered.push(name);
+  };
+  for (const n of requestedNames) visit(n);
+  return ordered;
+}
+
+async function installItem(name, config, registry, cwd) {
+  if (name === "theme") {
+    for (const rel of registry.theme.files) {
+      const dest = routeDest(rel, config);
+      if (!(await exists(dest))) {
+        await copyRegistryFile(rel, config);
+        console.log(`  + ${path.relative(cwd, dest)}`);
+      }
+    }
+    return;
+  }
+  const spec = registry.components[name];
+  for (const rel of spec.files) {
+    const dest = await copyRegistryFile(rel, config);
+    console.log(`  + ${path.relative(cwd, dest)}`);
+  }
+}
+
 async function cmdAdd(cwd, names) {
   let rawConfig = await loadRawConfig(cwd);
   if (!rawConfig) {
@@ -128,35 +173,17 @@ async function cmdAdd(cwd, names) {
   const config = resolveConfig(rawConfig, cwd);
   const registry = await loadRegistry(config.style);
 
-  const toInstall = new Set(names);
-  if (toInstall.has("theme") || toInstall.size === 0) {
-    for (const rel of registry.theme.files) {
-      const dest = await copyRegistryFile(rel, config);
-      console.log(`  + ${path.relative(cwd, dest)}`);
-    }
-    toInstall.delete("theme");
+  const requested = names.length === 0 ? ["theme"] : names;
+  let order;
+  try {
+    order = resolveInstallOrder(requested, registry);
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
   }
 
-  for (const name of toInstall) {
-    const spec = registry.components[name];
-    if (!spec) {
-      console.error(`Unknown component: ${name}`);
-      console.error(`Available: ${Object.keys(registry.components).join(", ")}`);
-      process.exit(1);
-    }
-    if (spec.requires?.includes("theme")) {
-      for (const rel of registry.theme.files) {
-        const dest = routeDest(rel, config);
-        if (!(await exists(dest))) {
-          await copyRegistryFile(rel, config);
-          console.log(`  + ${path.relative(cwd, dest)} (dependency)`);
-        }
-      }
-    }
-    for (const rel of spec.files) {
-      const dest = await copyRegistryFile(rel, config);
-      console.log(`  + ${path.relative(cwd, dest)}`);
-    }
+  for (const name of order) {
+    await installItem(name, config, registry, cwd);
   }
 
   console.log(`\nInstalled. Import e.g. from "${path.relative(cwd, config.componentsDir)}/button.slint".`);

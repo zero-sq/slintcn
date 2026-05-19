@@ -12,7 +12,7 @@ fn main() {
         .arg("../../bin/slintcn.mjs")
         .args([
             "add", "button", "card", "input", "badge", "separator", "label",
-            "dialog", "alert-dialog", "sheet",
+            "dialog", "alert-dialog", "sheet", "tooltip", "toast",
         ])
         .status()
         .expect("failed to invoke `node` for the slintcn CLI (need Node 20+ on PATH)");

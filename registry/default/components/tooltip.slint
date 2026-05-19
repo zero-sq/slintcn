@@ -1,0 +1,72 @@
+// slintcn Tooltip — small floating panel above/below/beside the wrapped trigger.
+//
+// Usage:
+//   Tooltip {
+//       text: "Save and continue";
+//       side: TooltipSide.top;
+//       Button { text: "Save"; }
+//   }
+//
+// The first child (any single element) is the trigger; its bounding box
+// defines Tooltip's own area. Hover on the trigger fades the bubble in.
+//
+// v0.2 limitation: the bubble is an in-tree element. If the trigger sits
+// near a window edge, the bubble can be clipped by the window. v0.3 may
+// switch to PopupWindow for edge-aware positioning.
+
+import { Tokens } from "../theme/tokens.slint";
+
+export enum TooltipSide { top, right, bottom, left }
+
+export component Tooltip {
+    in property <string> text;
+    in property <TooltipSide> side: TooltipSide.top;
+
+    // Hover tracker sits z-below @children so the wrapped element keeps its
+    // own click/keyboard interaction. Slint propagates hover to all overlapping
+    // elements regardless of z-order, so trigger-area.has-hover still fires.
+    trigger-area := TouchArea { }
+
+    @children
+
+    bubble := Rectangle {
+        background: Tokens.color-card;
+        border-color: Tokens.color-border-hairline-strong;
+        border-width: 1px;
+        border-radius: Tokens.radius-md;
+        drop-shadow-blur:     Tokens.shadow-e2-blur;
+        drop-shadow-offset-y: Tokens.shadow-e2-offset-y;
+        drop-shadow-color:    Tokens.shadow-e2-color;
+
+        width:  tooltip-text.preferred-width  + 16px;
+        height: tooltip-text.preferred-height + 8px;
+
+        x: side == TooltipSide.left
+            ? -self.width - 8px :
+           side == TooltipSide.right
+            ? root.width + 8px :
+           /* top | bottom */
+            (root.width - self.width) / 2;
+
+        y: side == TooltipSide.top
+            ? -self.height - 8px :
+           side == TooltipSide.bottom
+            ? root.height + 8px :
+           /* left | right */
+            (root.height - self.height) / 2;
+
+        opacity: trigger-area.has-hover ? 1.0 : 0.0;
+        animate opacity {
+            duration: Tokens.motion-fast;
+            easing: Tokens.motion-easing-standard;
+        }
+
+        tooltip-text := Text {
+            x: 8px;
+            y: 4px;
+            text: root.text;
+            color: Tokens.color-foreground;
+            font-size: Tokens.typography-body-sm-size;
+        }
+    }
+}

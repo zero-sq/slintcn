@@ -1,0 +1,103 @@
+// slintcn Toast — imperative single-active notification, Sonner-shaped API.
+//
+// Usage:
+//   import { Toaster, ToastQueue, ToastVariant } from "slintcn/components/toast.slint";
+//
+//   // Mount Toaster once at the Window root (last child, like Dialog):
+//   Toaster { width: parent.width; height: parent.height; }
+//
+//   // Fire from anywhere:
+//   Button {
+//       clicked => { ToastQueue.show("Saved.", ToastVariant.success); }
+//   }
+//
+// v0.2 scope: only one active toast at a time. Calling show() while a toast
+// is visible replaces it. A 3 s Timer dismisses automatically. Stacked queue
+// + per-toast dismiss timing is v0.3 work — Slint's in-Slint array mutation
+// is too limited to express it cleanly today.
+
+import { Tokens } from "../theme/tokens.slint";
+
+export enum ToastVariant { default, success, error }
+
+export global ToastQueue {
+    in-out property <string>       text;
+    in-out property <ToastVariant> variant: ToastVariant.default;
+    in-out property <bool>         shown: false;
+
+    callback show(string, ToastVariant);
+    show(t, v) => {
+        text = t;
+        variant = v;
+        shown = true;
+    }
+
+    callback dismiss();
+    dismiss() => {
+        shown = false;
+    }
+}
+
+// Mount once at Window root, sized to fill (Toaster anchors its toast to the
+// bottom-right corner of its own bounds).
+export component Toaster inherits Rectangle {
+    background: transparent;
+
+    // Auto-dismiss after 3s. The Timer is bound to `shown`, so it stops on
+    // dismissal. A second show() while still shown reuses the in-flight timer
+    // (acceptable v0.2 — accurate per-toast scheduling is v0.3).
+    auto-dismiss := Timer {
+        interval: 3s;
+        running: ToastQueue.shown;
+        triggered => { ToastQueue.dismiss(); }
+    }
+
+    toast := Rectangle {
+        background:
+            ToastQueue.variant == ToastVariant.success
+                ? Tokens.color-primary :
+            ToastQueue.variant == ToastVariant.error
+                ? Tokens.color-destructive.with-alpha(0.95) :
+            /* default */
+                Tokens.color-card;
+        border-color: Tokens.color-border-hairline-strong;
+        border-width: 1px;
+        border-radius: Tokens.radius-md;
+        drop-shadow-blur:     Tokens.shadow-e3-blur;
+        drop-shadow-offset-y: Tokens.shadow-e3-offset-y;
+        drop-shadow-color:    Tokens.shadow-e3-color;
+
+        width:  toast-text.preferred-width + 28px;
+        height: 36px;
+
+        // Bottom-right anchored, with a 16 px gutter and an 8 px slide-up on
+        // show. (Per-position config is v0.3.)
+        x: root.width  - self.width  - 16px;
+        y: ToastQueue.shown
+            ? root.height - self.height - 16px
+            : root.height - self.height -  8px;
+
+        opacity: ToastQueue.shown ? 1.0 : 0.0;
+        animate opacity, y {
+            duration: Tokens.motion-base;
+            easing: Tokens.motion-easing-standard;
+        }
+
+        toast-text := Text {
+            x: 14px;
+            y: (parent.height - self.preferred-height) / 2;
+            text: ToastQueue.text;
+            color:
+                ToastQueue.variant == ToastVariant.success
+                    ? Tokens.color-primary-foreground
+                    : Tokens.color-foreground;
+            font-size: Tokens.typography-body-size;
+            font-weight: Tokens.typography-weight-medium;
+        }
+
+        TouchArea {
+            mouse-cursor: pointer;
+            clicked => { ToastQueue.dismiss(); }
+        }
+    }
+}

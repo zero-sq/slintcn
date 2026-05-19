@@ -11,6 +11,8 @@ import { Label, LabelVariant } from "slintcn/components/label.slint";
 import { Dialog } from "slintcn/components/dialog.slint";
 import { AlertDialog } from "slintcn/components/alert-dialog.slint";
 import { Sheet, SheetSide } from "slintcn/components/sheet.slint";
+import { Tooltip, TooltipSide } from "slintcn/components/tooltip.slint";
+import { Toaster, ToastQueue, ToastVariant } from "slintcn/components/toast.slint";
 
 export component AppWindow inherits Window {
     title: "slintcn showcase";
@@ -93,6 +95,30 @@ export component AppWindow inherits Window {
                 text: "Open Sheet";
                 clicked => { root.sheet-open = true; }
             }
+            Tooltip {
+                text: "Hovers reveal me";
+                side: TooltipSide.top;
+                Button { variant: ButtonVariant.ghost; text: "Hover me"; }
+            }
+        }
+
+        HorizontalLayout {
+            spacing: 8px;
+            Button {
+                variant: ButtonVariant.outline;
+                text: "Toast";
+                clicked => { ToastQueue.show("Saved your changes.", ToastVariant.default); }
+            }
+            Button {
+                variant: ButtonVariant.outline;
+                text: "Toast (success)";
+                clicked => { ToastQueue.show("Profile updated.", ToastVariant.success); }
+            }
+            Button {
+                variant: ButtonVariant.outline;
+                text: "Toast (error)";
+                clicked => { ToastQueue.show("Network unreachable.", ToastVariant.error); }
+            }
         }
     }
 
@@ -123,5 +149,10 @@ export component AppWindow inherits Window {
         side: SheetSide.right;
         title: "Filters";
         description: "Adjust the visible content";
+    }
+
+    Toaster {
+        width: parent.width;
+        height: parent.height;
     }
 }

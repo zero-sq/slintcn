@@ -46,6 +46,14 @@
     "sheet": {
       "files": ["components/sheet.slint"],
       "requires": ["theme", "popup-helpers"]
+    },
+    "tooltip": {
+      "files": ["components/tooltip.slint"],
+      "requires": ["theme"]
+    },
+    "toast": {
+      "files": ["components/toast.slint"],
+      "requires": ["theme"]
     }
   }
 }

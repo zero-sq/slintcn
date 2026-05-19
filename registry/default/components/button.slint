@@ -146,6 +146,35 @@ export component Button inherits Rectangle {
 
     touch := TouchArea {
         mouse-cursor: root.disabled ? default : pointer;
-        clicked => { if (!root.disabled) { root.clicked(); } }
+        clicked => {
+            if (!root.disabled) {
+                focus-scope.focus();
+                root.clicked();
+            }
+        }
+    }
+
+    forward-focus: focus-scope;
+    focus-scope := FocusScope {
+        enabled: !root.disabled;
+        key-pressed(event) => {
+            if (event.text == "\n" || event.text == " ") {
+                if (!root.disabled) { root.clicked(); }
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    // Outer focus ring — drawn last so it's visually unclipped.
+    if focus-scope.has-focus: Rectangle {
+        x: -Tokens.focus-ring-offset;
+        y: -Tokens.focus-ring-offset;
+        width:  parent.width  + 2 * Tokens.focus-ring-offset;
+        height: parent.height + 2 * Tokens.focus-ring-offset;
+        border-width: Tokens.focus-ring-width;
+        border-color: Tokens.color-ring;
+        border-radius: Tokens.radius-md + Tokens.focus-ring-offset;
+        background: transparent;
     }
 }

@@ -50,4 +50,16 @@ export component Input inherits Rectangle {
         font-size: Tokens.typography-body-size;
         vertical-alignment: center;
     }
+
+    // Outer focus ring — drawn last so it's visually unclipped.
+    if input.has-focus: Rectangle {
+        x: -Tokens.focus-ring-offset;
+        y: -Tokens.focus-ring-offset;
+        width:  parent.width  + 2 * Tokens.focus-ring-offset;
+        height: parent.height + 2 * Tokens.focus-ring-offset;
+        border-width: Tokens.focus-ring-width;
+        border-color: Tokens.color-ring;
+        border-radius: Tokens.radius-md + Tokens.focus-ring-offset;
+        background: transparent;
+    }
 }

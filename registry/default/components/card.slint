@@ -1,5 +1,9 @@
 import { Tokens } from "../theme/tokens.slint";
 
+// Card is intentionally non-focusable (matches shadcn's <div>-based Card).
+// To make a card keyboard-activatable, wrap it in a Button(variant: ghost)
+// or place a Button inside it as the affordance.
+//
 // glass: non-interactive translucent surface (e.g. inside a Dialog body).
 // glass-interactive: clickable variant — its border/background respond to hover.
 // Both share the same e3 shadow.

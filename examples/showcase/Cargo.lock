@@ -4202,8 +4202,9 @@ dependencies = [
 
 [[package]]
 name = "slintcn-showcase"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
+ "png 0.17.16",
  "slint",
  "slint-build",
 ]

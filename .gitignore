@@ -17,3 +17,6 @@ yarn-error.log
 
 # slintcn generated installs (CLI output — never committed)
 **/ui/slintcn/
+
+# Slint Rust build artifacts in the source tree
+slint-build-*.log

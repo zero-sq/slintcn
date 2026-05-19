@@ -1,11 +1,24 @@
 [package]
 name = "slintcn-showcase"
-version = "0.6.0"
+version = "0.7.0"
 edition = "2021"
 publish = false
 
+[[bin]]
+name = "slintcn-showcase"
+path = "src/main.rs"
+
+[[bin]]
+name = "snapshot"
+path = "src/bin/snapshot.rs"
+required-features = ["snapshot"]
+
+[features]
+snapshot = ["dep:png"]
+
 [dependencies]
-slint = "1.16"
+slint = { version = "1.16", features = ["compat-1-2", "renderer-software"] }
+png = { version = "0.17", optional = true }
 
 [build-dependencies]
 slint-build = "1.16"

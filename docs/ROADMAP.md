@@ -165,7 +165,7 @@ PopupWindow rework.
 custom Rust harness using `slint::SoftwareRenderer` to rasterize the
 showcase to PNG without a display — pushed to v0.7.
 
-## v0.7 — Rust-backed Toast + headless snapshot CI (current)
+## v0.7 — Rust-backed Toast + headless snapshot CI
 
 - [x] **Growable Rust Toast queue** — `toast.slint` replaces the v0.4
       3-slot ring buffer with a `slint::VecModel<ToastItem>` owned by
@@ -184,36 +184,64 @@ showcase to PNG without a display — pushed to v0.7.
       build stays lean). The required Slint feature is
       `renderer-software`.
 
-## v0.8 — pending
+## v0.8 — PopupWindow Select + Toast fade-out + per-section CI (current)
 
-- [ ] **Per-section snapshots** — extend snapshot.rs to iterate over
-      every `active-section` value, render each, save per-section
-      PNG. Needs setting the property from Rust before render.
-- [ ] **Perceptual-diff CI step** — github actions workflow that
-      runs `make snapshot` on PR, diffs against the committed
-      baseline using a Rust crate (e.g., `image-compare`).
-- [ ] **PopupWindow-based Select dropdown** — probed in v0.6 and
-      hit a real Slint 1.16 limit: PopupWindow has no `closed`
-      callback, so when the user clicks outside with
-      `close-policy: close-on-click-outside` the popup hides
-      itself but our internal `open` flag stays stale (the next
-      Enter on the trigger would commit instead of re-opening).
-      Three paths forward:
-        1. Build the dropdown out of two pieces — a full-window
-           transparent scrim TouchArea that explicitly closes the
-           popup + a PopupWindow for the panel itself.
-        2. Patch Slint upstream to add a `closed` callback.
-        3. Accept "Select closes only on item-click / Escape /
-           trigger toggle" — drop close-on-click-outside.
-- [ ] **Generalized modal focus trap** (Sheet @children + Dialog
-      with body inputs) — likely a `focusables: [length]` prop on
-      modals so consumers register their controls.
-- [ ] **`npx slintcn@latest` published package** + registry raw-URL
-      install — author needs to be logged in via `npm login`; the
-      Claude harness can't run `npm publish` without that.
-- [ ] **Fade-out animation on Toast dismissal** — currently instant
-      removal. Two-phase dismiss in Rust (set `dismissed: true`,
-      animate, then remove from model).
+The Slint 1.16 PopupWindow limitation that blocked Select in v0.7
+turned out to be sidesteppable: by treating PopupWindow's own
+visibility as the source of truth for "open" and routing keyboard
+handlers through Slint's focus chain, we don't need to observe
+close at all.
+
+- [x] **PopupWindow Select** — dropdown migrated from in-tree to
+      PopupWindow. The trigger's FocusScope handles Enter / Space / ↓
+      to open; the popup's own inner FocusScope (reached via
+      `forward-focus`) handles ↑ / ↓ / Enter / Esc. Outside-click
+      auto-closes via `close-policy: close-on-click-outside` — Slint
+      manages return-focus to the trigger. No external `open: bool`,
+      so the missing `closed` callback is irrelevant.
+- [x] **Toast fade-out animation** — `ToastItem` gains a `dismissed:
+      bool` field. The Rust on_dismiss closure runs in two phases:
+      (1) set `dismissed: true` so the Slint ToastView's opacity and
+      y animate out over motion-base (200 ms), then (2) a 220 ms
+      removal Timer drops the row from the VecModel after the
+      animation lands. Auto-dismiss timers are cancelled when manual
+      dismissal beats them.
+- [x] **Per-section snapshots** — `snapshot.rs` iterates 0..8 via
+      `ui.set_active_section()`, rendering each section to
+      `docs/img/snapshots/section-<n>-<name>.png`. Optional CLI arg
+      filters to a specific section. The v0.7 single-frame baseline
+      is replaced with 8 per-section baselines.
+- [x] **GitHub Actions CI** — `.github/workflows/ci.yml` runs `make
+      verify` on every push/PR (with Slint system deps + Node 20 +
+      Rust caching). A `snapshot` job then runs `make snapshot` and
+      fails the build if any PNG drifts from the committed baseline
+      — regenerated PNGs are uploaded as an artifact for human
+      review until perceptual-diff lands in v0.9.
+- [x] **Sheet focus-trap policy documented** — the file header now
+      spells out the v0.8 contract: Sheet doesn't trap Tab because
+      its @children body is arbitrary; consumers needing a true trap
+      should wrap their content in a FocusScope and intercept Tab
+      themselves. Slint 1.16 lacks the introspection to do this
+      generically inside Sheet.
+
+## v0.9 — pending
+
+- [ ] **`npx slintcn@latest` published package** — package.json
+      and registry/ are publish-ready; needs `npm login` from the
+      operator (the Claude harness can't authenticate to npm).
+- [ ] **Registry raw-URL remote install** — once npm publish lands,
+      enable `slintcn add --registry https://raw.github…` for users
+      who'd rather pull straight from GitHub.
+- [ ] **Perceptual-diff CI step** — replace the byte-level
+      `git diff` snapshot guard with `image-compare` (Rust crate)
+      so a 1-pixel anti-aliasing wobble doesn't fail the build.
+- [ ] **Generalized modal focus-trap API** — `focus-at(int)`
+      callback contract on Dialog/Sheet/AlertDialog so consumers
+      can register their N focusables.
+- [ ] **Fade-out queue smoothing** — when a stack of toasts dismisses
+      mid-animation, the trailing toasts currently snap upward. A
+      "settle" pass after the removal Timer would slide them in
+      place.
 
 ## v1.0 — expand beyond SaaS
 

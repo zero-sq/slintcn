@@ -19,7 +19,8 @@ you copy into your repo and customize.
 | **v0.5** | Arrow-key nav, horizontal RadioGroup, modal focus trap, build.rs scaffold hint | ✅ |
 | **v0.6** | PopupWindow-based Tooltip (escapes parent bounds) + font embedding guide | ✅ |
 | **v0.7** | Growable Rust-backed Toast queue + headless snapshot CI (SoftwareRenderer) | ✅ |
-| **v0.8** | PopupWindow Select (needs scrim) + per-section snapshots + `npx slintcn` npm publish | upcoming |
+| **v0.8** | PopupWindow Select (focus-based) + Toast fade-out + per-section snapshots + GitHub Actions | ✅ |
+| **v0.9** | npm publish, generalized Sheet/Dialog focus-trap API, perceptual-diff in CI | upcoming |
 | **v1.0** | Game HUD registry — hotbar, reticle, keycap hints | later |
 
 SaaS-first is a **wedge**, not a ceiling. Once tokens + motion + hover semantics
@@ -87,7 +88,7 @@ silently falling through to the default styling.
 | **Checkbox** | (Path-drawn check) | `checked`, `label`, `disabled`, `toggled(bool)` |
 | **Switch** | (sliding knob, 36 × 20 track) | `checked`, `label`, `disabled`, `toggled(bool)` |
 | **RadioGroup** | vertical · horizontal | `items: [RadioItem]`, `selected: int`, `orientation: RadioOrientation`, `changed(int)` |
-| **Select** | (trigger + in-tree dropdown) | `items: [SelectItem]`, `selected-index: int`, `highlighted-index: int`, `placeholder`, `changed(int)` |
+| **Select** | trigger + PopupWindow dropdown (close-on-click-outside) | `items: [SelectItem]`, `selected-index: int`, `highlighted-index: int`, `placeholder`, `changed(int)` |
 
 ### Iconography & theming
 | Component | Purpose | Notable props |
@@ -170,8 +171,13 @@ bin/__test__/             # node:test suite — `make test`
 
 Run `make verify` before committing — it runs node tests, `cargo build`, and
 `cargo clippy -D warnings` end-to-end. Run `make snapshot` to headlessly render
-the showcase to `docs/img/snapshots/` via Slint's SoftwareRenderer (no display
-server required); the PNG baseline lives in the repo for visual-regression diffs.
+each showcase section to `docs/img/snapshots/section-<n>-<name>.png` via Slint's
+SoftwareRenderer (no display server required); per-section baselines live in
+the repo for visual-regression diffs.
+
+[![CI](https://github.com/stevekwon211/slintcn/actions/workflows/ci.yml/badge.svg)](https://github.com/stevekwon211/slintcn/actions/workflows/ci.yml)
+GitHub Actions runs `make verify` + `make snapshot` on every push/PR and fails
+the build if a snapshot drifts from its committed baseline.
 
 ## Toast Rust glue (required for Toaster to function)
 

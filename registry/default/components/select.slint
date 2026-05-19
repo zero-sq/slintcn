@@ -1,0 +1,193 @@
+// slintcn Select — trigger + in-tree dropdown.
+//
+// Usage:
+//   import { Select, SelectItem } from "slintcn/components/select.slint";
+//
+//   Select {
+//       items: [
+//           { value: "free",  label: "Free" },
+//           { value: "pro",   label: "Pro" },
+//           { value: "team",  label: "Team" },
+//       ];
+//       selected-index <=> plan-idx;
+//       placeholder: "Choose a plan…";
+//   }
+//
+// v0.4 limitations:
+//   - Dropdown is in-tree, so it can be clipped near window edges.
+//   - No outside-click-to-close (PopupWindow + scrim is v0.5).
+//   - Arrow-key navigation between items is v0.5; Enter/Space toggles
+//     the dropdown today, Escape closes it.
+
+import { Tokens } from "../theme/tokens.slint";
+import { Icon } from "icon.slint";
+import { LucidePaths } from "lucide-paths.slint";
+
+export struct SelectItem {
+    value: string,
+    label: string,
+}
+
+export component Select {
+    in property <[SelectItem]> items;
+    in-out property <int> selected-index: -1;
+    in property <string> placeholder: "Select…";
+    in property <bool> disabled: false;
+    callback changed(int);
+
+    in-out property <bool> open: false;
+
+    preferred-width:  220px;
+    preferred-height: 36px;
+
+    // Trigger
+    trigger := Rectangle {
+        x: 0;
+        y: 0;
+        width:  parent.width;
+        height: 36px;
+        background: Tokens.color-surface-1;
+        border-color: root.open
+            ? Tokens.color-ring
+            : (trigger-touch.has-hover
+                ? Tokens.color-border-hairline-strong
+                : Tokens.color-border-hairline);
+        border-width: 1px;
+        border-radius: Tokens.radius-md;
+
+        HorizontalLayout {
+            padding-left:  12px;
+            padding-right: 10px;
+            spacing: 8px;
+
+            Text {
+                text: root.selected-index >= 0
+                    ? root.items[root.selected-index].label
+                    : root.placeholder;
+                color: root.selected-index >= 0
+                    ? Tokens.color-foreground
+                    : Tokens.color-muted-foreground;
+                font-size: Tokens.typography-body-size;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+            }
+
+            Icon {
+                commands: LucidePaths.chevron-down;
+                tint: Tokens.color-muted-foreground;
+                size: 16px;
+            }
+        }
+
+        if focus.has-focus: Rectangle {
+            x: -2px;
+            y: -2px;
+            width:  parent.width  + 4px;
+            height: parent.height + 4px;
+            border-width: 2px;
+            border-color: Tokens.color-ring;
+            border-radius: Tokens.radius-md + 2px;
+            background: transparent;
+        }
+
+        animate border-color {
+            duration: Tokens.motion-fast;
+            easing: Tokens.motion-easing-standard;
+        }
+
+        trigger-touch := TouchArea {
+            mouse-cursor: root.disabled ? default : pointer;
+            clicked => {
+                if (!root.disabled) {
+                    root.open = !root.open;
+                    focus.focus();
+                }
+            }
+        }
+    }
+
+    // Dropdown — extends below trigger when open. Not clipped by surrounding
+    // layout (we accept overflow), but can be clipped by the Window if the
+    // Select sits near the bottom edge.
+    if root.open: Rectangle {
+        x: 0;
+        y: 40px;
+        width: trigger.width;
+        height: root.items.length * 34px + 8px;
+        background: Tokens.color-card;
+        border-color: Tokens.color-border-hairline-strong;
+        border-width: 1px;
+        border-radius: Tokens.radius-md;
+        drop-shadow-blur:     Tokens.shadow-e3-blur;
+        drop-shadow-offset-y: Tokens.shadow-e3-offset-y;
+        drop-shadow-color:    Tokens.shadow-e3-color;
+
+        VerticalLayout {
+            padding: 4px;
+            spacing: 0;
+
+            for item[idx] in root.items: Rectangle {
+                height: 30px;
+                background: row-touch.has-hover
+                    ? Tokens.color-surface-1
+                    : transparent;
+                border-radius: Tokens.radius-sm;
+
+                HorizontalLayout {
+                    padding-left:  8px;
+                    padding-right: 8px;
+                    spacing: 6px;
+
+                    Text {
+                        text: item.label;
+                        color: Tokens.color-foreground;
+                        font-size: Tokens.typography-body-size;
+                        vertical-alignment: center;
+                        horizontal-stretch: 1;
+                    }
+
+                    if idx == root.selected-index: Icon {
+                        commands: LucidePaths.check;
+                        tint: Tokens.color-foreground;
+                        size: 14px;
+                    }
+                }
+
+                row-touch := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => {
+                        root.selected-index = idx;
+                        root.changed(idx);
+                        root.open = false;
+                    }
+                }
+
+                animate background {
+                    duration: Tokens.motion-fast;
+                    easing: Tokens.motion-easing-standard;
+                }
+            }
+        }
+    }
+
+    opacity: root.disabled ? 0.5 : 1.0;
+
+    forward-focus: focus;
+    focus := FocusScope {
+        enabled: !root.disabled;
+        key-pressed(event) => {
+            if (event.text == "\u{1b}") {
+                if (root.open) {
+                    root.open = false;
+                    return accept;
+                }
+                return reject;
+            }
+            if (event.text == " " || event.text == "\n") {
+                root.open = !root.open;
+                return accept;
+            }
+            return reject;
+        }
+    }
+}

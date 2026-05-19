@@ -1,0 +1,119 @@
+// slintcn RadioGroup — single-selection vertical list.
+//
+// Usage:
+//   import { RadioGroup, RadioItem } from "slintcn/components/radio-group.slint";
+//
+//   RadioGroup {
+//       items: [
+//           { value: "small",  label: "Small" },
+//           { value: "medium", label: "Medium" },
+//           { value: "large",  label: "Large" },
+//       ];
+//       selected <=> size-index;
+//   }
+//
+// v0.4: vertical orientation only — horizontal is v0.5.
+
+import { Tokens } from "../theme/tokens.slint";
+
+export struct RadioItem {
+    value: string,
+    label: string,
+}
+
+export component RadioGroup {
+    in property <[RadioItem]> items;
+    in-out property <int> selected: 0;
+    in property <bool> disabled: false;
+    callback changed(int);
+
+    VerticalLayout {
+        spacing: 10px;
+        alignment: start;
+
+        for item[idx] in items: Rectangle {
+            background: transparent;
+            height: 22px;
+
+            HorizontalLayout {
+                spacing: 10px;
+                alignment: start;
+
+                circle := Rectangle {
+                    width:  16px;
+                    height: 16px;
+                    y: (parent.height - self.height) / 2;
+                    background: idx == root.selected
+                        ? Tokens.color-primary
+                        : Tokens.color-surface-1;
+                    border-color: idx == root.selected
+                        ? Tokens.color-primary
+                        : Tokens.color-border-hairline-strong;
+                    border-width: 1px;
+                    border-radius: 8px;
+
+                    if idx == root.selected: Rectangle {
+                        width:  6px;
+                        height: 6px;
+                        x: (parent.width  - self.width)  / 2;
+                        y: (parent.height - self.height) / 2;
+                        background: Tokens.color-primary-foreground;
+                        border-radius: 3px;
+                    }
+
+                    if focus.has-focus: Rectangle {
+                        x: -2px;
+                        y: -2px;
+                        width:  parent.width  + 4px;
+                        height: parent.height + 4px;
+                        border-width: 2px;
+                        border-color: Tokens.color-ring;
+                        border-radius: 10px;
+                        background: transparent;
+                    }
+
+                    animate background, border-color {
+                        duration: Tokens.motion-fast;
+                        easing: Tokens.motion-easing-standard;
+                    }
+                }
+
+                Text {
+                    text: item.label;
+                    color: root.disabled
+                        ? Tokens.color-muted-foreground
+                        : Tokens.color-foreground;
+                    font-size: Tokens.typography-body-size;
+                    vertical-alignment: center;
+                }
+            }
+
+            opacity: root.disabled ? 0.5 : 1.0;
+
+            TouchArea {
+                mouse-cursor: root.disabled ? default : pointer;
+                clicked => {
+                    if (!root.disabled && root.selected != idx) {
+                        root.selected = idx;
+                        root.changed(idx);
+                        focus.focus();
+                    }
+                }
+            }
+
+            focus := FocusScope {
+                enabled: !root.disabled;
+                key-pressed(event) => {
+                    if (event.text == " " || event.text == "\n") {
+                        if (!root.disabled && root.selected != idx) {
+                            root.selected = idx;
+                            root.changed(idx);
+                        }
+                        return accept;
+                    }
+                    return reject;
+                }
+            }
+        }
+    }
+}

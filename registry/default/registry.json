@@ -66,6 +66,22 @@
     "switch": {
       "files": ["components/switch.slint"],
       "requires": ["theme"]
+    },
+    "icon": {
+      "files": ["components/icon.slint"],
+      "requires": ["theme"]
+    },
+    "lucide-paths": {
+      "files": ["components/lucide-paths.slint"],
+      "requires": []
+    },
+    "radio-group": {
+      "files": ["components/radio-group.slint"],
+      "requires": ["theme"]
+    },
+    "select": {
+      "files": ["components/select.slint"],
+      "requires": ["theme", "icon", "lucide-paths"]
     }
   }
 }

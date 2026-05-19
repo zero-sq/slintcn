@@ -108,7 +108,7 @@ realistic composed examples.
       reactively. Light palette adds `alpha-b-*-on-light`
       counterparts to the existing dark alphas
 
-## v0.5 — keyboard polish + modal focus trap (current)
+## v0.5 — keyboard polish + modal focus trap
 
 This wave closes the keyboard-accessibility gaps that v0.2–v0.4 left
 visible, and adds the small DX hint that makes `slintcn init` useful
@@ -143,26 +143,44 @@ Trapping Tab there would require the consumer to declare its
 focusable children to the Sheet — pushed to v0.6 with the larger
 PopupWindow rework.
 
-## v0.6 — pending
+## v0.6 — PopupWindow Tooltip + font guide (current)
 
-- [ ] **PopupWindow-based Tooltip** — edge-aware positioning that
-      escapes the parent component's bounds. Needs a probe of Slint
-      1.16's PopupWindow API: positioning semantics, parent-window
-      clipping behavior, close-policy reliability.
-- [ ] **PopupWindow-based Select dropdown** — same investigation,
-      plus outside-click-to-close.
+- [x] **PopupWindow-based Tooltip** — Tooltip migrated from in-tree
+      bubble to Slint's `PopupWindow`. The bubble now renders on a
+      layer above the parent window so deeply nested triggers
+      don't get the popup clipped by surrounding components.
+      Reactive show/close on hover via a `trigger-hovered` property
+      + `changed` callback; size pre-computed from a hidden
+      measurement Text.
+- [x] **Font embedding guide** — `docs/FONTS.md` covers system-font
+      defaults, `slint::register_font_from_path` /
+      `register_font_from_memory`, Slint-side `font-family` usage,
+      Inter / Geist specifics, and OFL redistribution notes.
+
+### slint-viewer snapshot CI — investigated, not feasible in 1.16
+
+`slint-viewer 1.16.1` ships only the interactive viewer (`--auto-reload`,
+`--load-data`, `--on callback`). No `--screenshot` / `--headless` /
+`--render` flag exists in the CLI. A snapshot pipeline would need a
+custom Rust harness using `slint::SoftwareRenderer` to rasterize the
+showcase to PNG without a display — pushed to v0.7.
+
+## v0.7 — pending
+
+- [ ] **PopupWindow-based Select dropdown** — port Select to
+      PopupWindow with outside-click-close. Tooltip migration proved
+      the pattern; Select adds the wrinkle of an interactive list
+      inside the popup.
 - [ ] **Generalized modal focus trap** (Sheet @children + Dialog
       with body inputs) — likely a `focusables: [length]` prop on
       modals so consumers register their controls.
-- [ ] **`slint-viewer` headless snapshot CI** — probe whether Slint
-      1.16's tooling supports rendering to PNG without a display.
+- [ ] **Visual-regression CI** — custom Rust harness using
+      `SoftwareRenderer`, render showcase to PNG, perceptual diff.
 - [ ] **`npx slintcn@latest` published package** + registry raw-URL
       install — one-way door, awaits author approval.
 - [ ] **Growable Toast queue** — Rust-side model (the 3-slot ring
       buffer is the ceiling of pure-Slint array mutation in 1.16).
-- [ ] **Font embedding guide** — Inter / Geist registration via
-      Rust + import in Slint.
-- [ ] Tab focusable detection inside Sheet body / Dialog body.
+- [ ] **Tab focusable registration** for Sheet body / Dialog body.
 
 ## v1.0 — expand beyond SaaS
 

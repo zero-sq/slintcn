@@ -17,7 +17,8 @@ you copy into your repo and customize.
 | **v0.3** | Selection primitives + docs-style showcase — Tabs, Checkbox, Switch + Sign-in / Settings / Dashboard examples | ✅ |
 | **v0.4** | Select / RadioGroup / Icon + stacked Toast + runtime light/dark `Theme.mode` swap | ✅ |
 | **v0.5** | Arrow-key nav, horizontal RadioGroup, modal focus trap, build.rs scaffold hint | ✅ |
-| **v0.6** | PopupWindow-based Tooltip + outside-click-close, `slint-viewer` snapshot CI, `npx slintcn` npm publish | upcoming |
+| **v0.6** | PopupWindow-based Tooltip (escapes parent bounds) + font embedding guide | ✅ |
+| **v0.7** | PopupWindow Select, visual-regression CI (custom Rust harness), `npx slintcn` npm publish | upcoming |
 | **v1.0** | Game HUD registry — hotbar, reticle, keycap hints | later |
 
 SaaS-first is a **wedge**, not a ceiling. Once tokens + motion + hover semantics
@@ -100,7 +101,7 @@ silently falling through to the default styling.
 | **Dialog** | General-purpose modal | `open`, `title`, `description`, `dismiss-on-backdrop`, `close-label`, `@children` body |
 | **AlertDialog** | Destructive confirm | `open`, `action-label`, `cancel-label`, `action-variant`, `confirmed()`, `cancelled()` |
 | **Sheet** | Side drawer | `open`, `side` (top/right/bottom/left), `panel-extent`, `@children` body |
-| **Tooltip** | Hover-revealed bubble | `text`, `side`; wraps a trigger as `@children` |
+| **Tooltip** | Hover-revealed bubble (PopupWindow — escapes parent bounds) | `text`, `side`; wraps a trigger as `@children` |
 | **Toast** | Stacked imperative notifications (up to 3 simultaneous) | `ToastQueue.show(text, variant)` — variants: default · success · error |
 
 Keyboard activation (Enter / Space) and a visible 2 px focus ring are wired into

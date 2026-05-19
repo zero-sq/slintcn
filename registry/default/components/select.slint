@@ -1,29 +1,28 @@
-// slintcn Select — trigger + in-tree dropdown.
+// slintcn Select — PopupWindow-backed dropdown.
 //
 // Usage:
 //   Select {
-//       items: [
-//           { value: "free",  label: "Free" },
-//           { value: "pro",   label: "Pro" },
-//           { value: "team",  label: "Team" },
-//       ];
+//       items: [{ value: "free", label: "Free" }, { value: "pro", label: "Pro" }];
 //       selected-index <=> plan-idx;
 //       placeholder: "Choose a plan…";
 //   }
 //
 // Keyboard:
-//   ↓     open the dropdown (closed) | move highlight down (open)
-//   ↑     move highlight up (open)
-//   Enter open the dropdown (closed) | commit highlight + close (open)
-//   Space toggle open
-//   Esc   close without committing
+//   On trigger:  Enter / Space / ↓  open the dropdown
+//   In popup:    ↑ / ↓  move highlight (wrap)
+//                Enter  commit highlight + close
+//                Esc    close (no commit)
+//                click  outside  close (no commit, via close-on-click-outside)
 //
-// `selected-index` is the committed value (drives the trigger label).
-// `highlighted-index` is the keyboard cursor visible inside the dropdown
-// while it's open; it resets to selected-index on open.
-//
-// v0.4 limitations (unchanged from v0.4): no PopupWindow, so the dropdown
-// can be clipped near window edges. No outside-click-close.
+// Design notes:
+//   - PopupWindow's own visibility is the source of truth for "open".
+//     Slint 1.16 doesn't expose a `closed` callback, but with focus-driven
+//     interaction we don't need to observe close: keyboard handlers live
+//     inside the popup's FocusScope, so they only run while it's shown.
+//   - We can't call `popup-focus.focus()` from the outer scope (Slint
+//     forbids cross-PopupWindow element access). Instead, the popup's
+//     inner Rectangle does `forward-focus: popup-focus`, so showing the
+//     popup gives keyboard focus to the right FocusScope automatically.
 
 import { Tokens } from "../theme/tokens.slint";
 import { Icon } from "icon.slint";
@@ -39,13 +38,17 @@ export component Select {
     in-out property <int> selected-index: -1;
     in property <string> placeholder: "Select…";
     in property <bool> disabled: false;
-    callback changed(int);
-
-    in-out property <bool> open: false;
     in-out property <int> highlighted-index: 0;
+    callback changed(int);
 
     preferred-width:  220px;
     preferred-height: 36px;
+
+    function open-dropdown() {
+        root.highlighted-index = root.selected-index >= 0
+            ? root.selected-index : 0;
+        popup.show();
+    }
 
     trigger := Rectangle {
         x: 0;
@@ -53,11 +56,9 @@ export component Select {
         width:  parent.width;
         height: 36px;
         background: Tokens.color-surface-1;
-        border-color: root.open
-            ? Tokens.color-ring
-            : (trigger-touch.has-hover
-                ? Tokens.color-border-hairline-strong
-                : Tokens.color-border-hairline);
+        border-color: trigger-touch.has-hover
+            ? Tokens.color-border-hairline-strong
+            : Tokens.color-border-hairline;
         border-width: 1px;
         border-radius: Tokens.radius-md;
 
@@ -85,7 +86,7 @@ export component Select {
             }
         }
 
-        if focus.has-focus: Rectangle {
+        if trigger-focus.has-focus: Rectangle {
             x: -2px;
             y: -2px;
             width:  parent.width  + 4px;
@@ -104,133 +105,124 @@ export component Select {
         trigger-touch := TouchArea {
             mouse-cursor: root.disabled ? default : pointer;
             clicked => {
-                if (!root.disabled) {
-                    root.open = !root.open;
-                    if (root.open) {
-                        root.highlighted-index = root.selected-index >= 0
-                            ? root.selected-index : 0;
-                    }
-                    focus.focus();
-                }
+                if (!root.disabled) { root.open-dropdown(); }
             }
         }
     }
 
-    if root.open: Rectangle {
+    trigger-focus := FocusScope {
+        enabled: !root.disabled;
+        key-pressed(event) => {
+            if (event.text == "\n" || event.text == " " || event.text == Key.DownArrow) {
+                root.open-dropdown();
+                return accept;
+            }
+            return reject;
+        }
+    }
+    forward-focus: trigger-focus;
+
+    popup := PopupWindow {
         x: 0;
         y: 40px;
         width: trigger.width;
         height: root.items.length * 34px + 8px;
-        background: Tokens.color-card;
-        border-color: Tokens.color-border-hairline-strong;
-        border-width: 1px;
-        border-radius: Tokens.radius-md;
-        drop-shadow-blur:     Tokens.shadow-e3-blur;
-        drop-shadow-offset-y: Tokens.shadow-e3-offset-y;
-        drop-shadow-color:    Tokens.shadow-e3-color;
+        close-policy: close-on-click-outside;
 
-        VerticalLayout {
-            padding: 4px;
-            spacing: 0;
+        panel := Rectangle {
+            background: Tokens.color-card;
+            border-color: Tokens.color-border-hairline-strong;
+            border-width: 1px;
+            border-radius: Tokens.radius-md;
+            drop-shadow-blur:     Tokens.shadow-e3-blur;
+            drop-shadow-offset-y: Tokens.shadow-e3-offset-y;
+            drop-shadow-color:    Tokens.shadow-e3-color;
 
-            for item[idx] in root.items: Rectangle {
-                height: 30px;
-                background:
-                    idx == root.highlighted-index
-                        ? Tokens.color-surface-2 :
-                    row-touch.has-hover
-                        ? Tokens.color-surface-1 :
-                        transparent;
-                border-radius: Tokens.radius-sm;
+            // Showing the popup focuses this Rectangle; we forward to the
+            // FocusScope so arrow-key handlers receive events.
+            forward-focus: popup-focus;
 
-                HorizontalLayout {
-                    padding-left:  8px;
-                    padding-right: 8px;
-                    spacing: 6px;
+            VerticalLayout {
+                padding: 4px;
+                spacing: 0;
 
-                    Text {
-                        text: item.label;
-                        color: Tokens.color-foreground;
-                        font-size: Tokens.typography-body-size;
-                        vertical-alignment: center;
-                        horizontal-stretch: 1;
+                for item[idx] in root.items: Rectangle {
+                    height: 30px;
+                    background:
+                        idx == root.highlighted-index
+                            ? Tokens.color-surface-2 :
+                        row-touch.has-hover
+                            ? Tokens.color-surface-1 :
+                            transparent;
+                    border-radius: Tokens.radius-sm;
+
+                    HorizontalLayout {
+                        padding-left:  8px;
+                        padding-right: 8px;
+                        spacing: 6px;
+
+                        Text {
+                            text: item.label;
+                            color: Tokens.color-foreground;
+                            font-size: Tokens.typography-body-size;
+                            vertical-alignment: center;
+                            horizontal-stretch: 1;
+                        }
+
+                        if idx == root.selected-index: Icon {
+                            commands: LucidePaths.check;
+                            tint: Tokens.color-foreground;
+                            size: 14px;
+                        }
                     }
 
-                    if idx == root.selected-index: Icon {
-                        commands: LucidePaths.check;
-                        tint: Tokens.color-foreground;
-                        size: 14px;
+                    row-touch := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => {
+                            root.selected-index = idx;
+                            root.changed(idx);
+                            popup.close();
+                        }
+                    }
+
+                    animate background {
+                        duration: Tokens.motion-fast;
+                        easing: Tokens.motion-easing-standard;
                     }
                 }
+            }
 
-                row-touch := TouchArea {
-                    mouse-cursor: pointer;
-                    clicked => {
-                        root.selected-index = idx;
-                        root.changed(idx);
-                        root.open = false;
+            popup-focus := FocusScope {
+                key-pressed(event) => {
+                    if (event.text == "\u{1b}") {
+                        popup.close();
+                        return accept;
                     }
-                }
-
-                animate background {
-                    duration: Tokens.motion-fast;
-                    easing: Tokens.motion-easing-standard;
+                    if (event.text == "\n") {
+                        if (root.items.length > 0) {
+                            root.selected-index = root.highlighted-index;
+                            root.changed(root.selected-index);
+                        }
+                        popup.close();
+                        return accept;
+                    }
+                    if (event.text == Key.DownArrow) {
+                        if (root.items.length > 0) {
+                            root.highlighted-index = mod(root.highlighted-index + 1, root.items.length);
+                        }
+                        return accept;
+                    }
+                    if (event.text == Key.UpArrow) {
+                        if (root.items.length > 0) {
+                            root.highlighted-index = mod(root.highlighted-index + root.items.length - 1, root.items.length);
+                        }
+                        return accept;
+                    }
+                    return reject;
                 }
             }
         }
     }
 
     opacity: root.disabled ? 0.5 : 1.0;
-
-    forward-focus: focus;
-    focus := FocusScope {
-        enabled: !root.disabled;
-        key-pressed(event) => {
-            if (event.text == "\u{1b}") {
-                if (root.open) { root.open = false; return accept; }
-                return reject;
-            }
-            if (event.text == " ") {
-                root.open = !root.open;
-                if (root.open) {
-                    root.highlighted-index = root.selected-index >= 0
-                        ? root.selected-index : 0;
-                }
-                return accept;
-            }
-            if (event.text == "\n") {
-                if (root.open && root.items.length > 0) {
-                    root.selected-index = root.highlighted-index;
-                    root.changed(root.selected-index);
-                    root.open = false;
-                } else {
-                    root.open = true;
-                    if (root.items.length > 0) {
-                        root.highlighted-index = root.selected-index >= 0
-                            ? root.selected-index : 0;
-                    }
-                }
-                return accept;
-            }
-            if (event.text == Key.DownArrow) {
-                if (!root.open) {
-                    root.open = true;
-                    if (root.items.length > 0) {
-                        root.highlighted-index = root.selected-index >= 0
-                            ? root.selected-index : 0;
-                    }
-                } else if (root.items.length > 0) {
-                    root.highlighted-index = mod(root.highlighted-index + 1, root.items.length);
-                }
-                return accept;
-            }
-            if (event.text == Key.UpArrow) {
-                if (root.open && root.items.length > 0) {
-                    root.highlighted-index = mod(root.highlighted-index + root.items.length - 1, root.items.length);
-                }
-                return accept;
-            }
-            return reject;
-        }
-    }
 }

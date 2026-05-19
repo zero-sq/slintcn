@@ -15,7 +15,8 @@ you copy into your repo and customize.
 | **v0.1.1** | Foundation hardening — enum variants, focus ring, dogfooded showcase | ✅ |
 | **v0.2** | Shell + overlays — Label, Separator, Dialog, AlertDialog, Sheet, Tooltip, Toast | ✅ |
 | **v0.3** | Selection primitives + docs-style showcase — Tabs, Checkbox, Switch + Sign-in / Settings / Dashboard examples | ✅ |
-| **v0.4** | DX & theming — Select, RadioGroup, light palette, `npx slintcn` publish, visual-regression CI | upcoming |
+| **v0.4** | Select / RadioGroup / Icon + stacked Toast + runtime light/dark `Theme.mode` swap | ✅ |
+| **v0.5** | DX — real focus trap, PopupWindow-based Tooltip, npm publish, visual-regression CI, fonts | upcoming |
 | **v1.0** | Game HUD registry — hotbar, reticle, keycap hints | later |
 
 SaaS-first is a **wedge**, not a ceiling. Once tokens + motion + hover semantics
@@ -82,6 +83,15 @@ silently falling through to the default styling.
 | **Tabs** | (horizontal nav strip) | `items: [TabItem]`, `current: int`, `changed(int)` |
 | **Checkbox** | (Path-drawn check) | `checked`, `label`, `disabled`, `toggled(bool)` |
 | **Switch** | (sliding knob, 36 × 20 track) | `checked`, `label`, `disabled`, `toggled(bool)` |
+| **RadioGroup** | (vertical list) | `items: [RadioItem]`, `selected: int`, `changed(int)` |
+| **Select** | (trigger + in-tree dropdown) | `items: [SelectItem]`, `selected-index: int`, `placeholder`, `changed(int)` |
+
+### Iconography & theming
+| Component | Purpose | Notable props |
+|-----------|---------|---------------|
+| **Icon** | Path-stroke icon | `commands: string` (24-unit viewBox), `size`, `tint`, `stroke-width` |
+| **LucidePaths** | Bundled Lucide command strings | `check · x-mark · chevron-* · plus · minus · arrow-* · dot` |
+| **Theme** global | Runtime mode swap | `mode: ThemeMode { dark, light }` — set anywhere; every Tokens binding updates reactively |
 
 ### Overlays
 | Component | Purpose | Notable props |
@@ -90,7 +100,7 @@ silently falling through to the default styling.
 | **AlertDialog** | Destructive confirm | `open`, `action-label`, `cancel-label`, `action-variant`, `confirmed()`, `cancelled()` |
 | **Sheet** | Side drawer | `open`, `side` (top/right/bottom/left), `panel-extent`, `@children` body |
 | **Tooltip** | Hover-revealed bubble | `text`, `side`; wraps a trigger as `@children` |
-| **Toast** | Imperative notifications | `ToastQueue.show(text, variant)` — variants: default · success · error |
+| **Toast** | Stacked imperative notifications (up to 3 simultaneous) | `ToastQueue.show(text, variant)` — variants: default · success · error |
 
 Keyboard activation (Enter / Space) and a visible 2 px focus ring are wired into
 every interactive primitive. Modals close on Escape; Dialog and Sheet close on
@@ -143,7 +153,7 @@ closed modals don't block interaction with the underlying UI.
 registry/default/         # Source of truth (published with npm package)
   theme/palette.slint     #   raw color/alpha primitives
   theme/tokens.slint      #   semantic layer (components read this)
-  components/*.slint      #   14 primitives + popup-helpers
+  components/*.slint      #   18 primitives + popup-helpers + lucide-paths
 examples/showcase/        # Runnable gallery (regenerated via `slintcn add`)
 bin/slintcn.mjs           # init + add CLI (transitive deps)
 bin/__test__/             # node:test suite — `make test`

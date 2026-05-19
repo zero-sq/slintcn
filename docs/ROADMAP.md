@@ -64,7 +64,7 @@ Window child sized to fill via `width: parent.width; height: parent.height`
 - **Toast queue** is single-active. Stacked toasts + per-toast
   dismissal timing need richer Slint array mutation than 1.16 ships.
 
-## v0.3 — selection primitives + showcase (current)
+## v0.3 — selection primitives + showcase
 
 Form-selection trio and a docs-style showcase. The showcase becomes
 the kind of multi-section surface developers expect when they land
@@ -86,19 +86,44 @@ realistic composed examples.
       works inside layouts that own placement; press feedback moves
       to the label.
 
-### Still pending for v0.3 (rolling into v0.4)
+## v0.4 — Select, RadioGroup, Icon, runtime theme (current)
 
-- [ ] Real focus trap inside modal overlays (Tab cycling)
-- [ ] PopupWindow-based Tooltip + edge-aware positioning
-- [ ] Stacked Toast queue with per-toast lifecycle
-- [ ] **Select** + **RadioGroup** primitives
+- [x] **Select** primitive — trigger + in-tree dropdown card; chevron
+      from `Icon` + `LucidePaths.chevron-down`; Enter / Space toggles,
+      Escape closes
+- [x] **RadioGroup** primitive — vertical list, Path-drawn inner dot,
+      Space activates, 2 px focus ring
+- [x] **Icon** + **LucidePaths** — 24-unit viewBox Path-stroke icon
+      with `tint` (renamed from `color` to dodge Slint's reserved
+      Rectangle alias) and an 11-icon Lucide starter set (check,
+      x-mark, chevron-{up,down,left,right}, plus, minus,
+      arrow-{left,right}, dot)
+- [x] **Stacked Toast** — 3-slot ring buffer (Slint 1.16 lacks
+      `.filter()` and array spread, so we declare fixed slot
+      properties and rotate writes through them). Drop-oldest at
+      4-toast saturation; per-slot Timer auto-dismiss
+- [x] **Runtime `Theme.mode` swap** — single `Theme.mode:
+      ThemeMode { dark, light }` global drives every semantic
+      Tokens binding; mutate anywhere and the whole app reflows
+      reactively. Light palette adds `alpha-b-*-on-light`
+      counterparts to the existing dark alphas
+
+### Still pending for v0.5
+
+- [ ] Real focus trap inside modal overlays (Tab cycling) — needs
+      consumer-supplied list of focusable children, since Slint
+      FocusScope doesn't cycle-bound natively
+- [ ] PopupWindow-based Tooltip + Select dropdown (edge-aware
+      positioning that escapes the parent's bounds)
+- [ ] Growable Toast queue (Rust-side model, since in-Slint array
+      mutation is too limited)
 - [ ] `slintcn init` scaffolds Rust `build.rs` import paths
 - [ ] Font guide (Inter / Geist embedding in Slint)
-- [ ] Icon slot pattern (optional `image` prop + lucide PNG pipeline)
 - [ ] `npx slintcn@latest` published package
 - [ ] Registry index on GitHub (raw URL like shadcn)
 - [ ] Visual regression: render showcase frames in CI
-- [ ] Second theme: `light` (same components, swapped tokens)
+- [ ] Horizontal RadioGroup orientation
+- [ ] Arrow-key navigation inside Tabs / Select / RadioGroup
 
 ## v1.0 — expand beyond SaaS
 

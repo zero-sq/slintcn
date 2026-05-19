@@ -14,6 +14,7 @@ fn main() {
             "add", "button", "card", "input", "badge", "separator", "label",
             "dialog", "alert-dialog", "sheet", "tooltip", "toast",
             "tabs", "checkbox", "switch",
+            "icon", "lucide-paths", "radio-group", "select",
         ])
         .status()
         .expect("failed to invoke `node` for the slintcn CLI (need Node 20+ on PATH)");

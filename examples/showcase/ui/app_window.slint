@@ -7,7 +7,7 @@
 // Imports use the generated layout under ui/slintcn/ — produced by the
 // `slintcn add …` invocation in build.rs.
 
-import { Tokens } from "slintcn/theme/tokens.slint";
+import { Tokens, Theme, ThemeMode }             from "slintcn/theme/tokens.slint";
 import { Button, ButtonVariant, ButtonSize }    from "slintcn/components/button.slint";
 import { Card, CardVariant }                    from "slintcn/components/card.slint";
 import { Input }                                from "slintcn/components/input.slint";
@@ -22,6 +22,10 @@ import { Toaster, ToastQueue, ToastVariant }    from "slintcn/components/toast.s
 import { Tabs, TabItem }                        from "slintcn/components/tabs.slint";
 import { Checkbox }                             from "slintcn/components/checkbox.slint";
 import { Switch }                               from "slintcn/components/switch.slint";
+import { RadioGroup, RadioItem }                from "slintcn/components/radio-group.slint";
+import { Select, SelectItem }                   from "slintcn/components/select.slint";
+import { Icon }                                 from "slintcn/components/icon.slint";
+import { LucidePaths }                          from "slintcn/components/lucide-paths.slint";
 
 // Sidebar nav item — local helper, not part of the registry.
 component NavItem inherits Rectangle {
@@ -88,6 +92,8 @@ export component AppWindow inherits Window {
     in-out property <bool> dialog-open: false;
     in-out property <bool> alert-open: false;
     in-out property <bool> sheet-open: false;
+    in-out property <int>  plan-index: 1;
+    in-out property <int>  size-radio: 1;
     in-out property <int>  settings-tab: 0;
     in-out property <int>  tabs-demo: 0;
     in-out property <bool> remember-me: true;
@@ -152,6 +158,11 @@ export component AppWindow inherits Window {
                     active: root.active-section == 3;
                     clicked => { root.active-section = 3; }
                 }
+                NavItem {
+                    label: "Selection";
+                    active: root.active-section == 7;
+                    clicked => { root.active-section = 7; }
+                }
 
                 Rectangle { height: 12px; background: transparent; }
 
@@ -179,6 +190,16 @@ export component AppWindow inherits Window {
                 }
 
                 Separator { orientation: SeparatorOrientation.horizontal; }
+
+                // Theme toggle — mutates Theme.mode reactively; every Tokens
+                // binding across the app updates without a reload.
+                Switch {
+                    label: "Light mode";
+                    checked: false;
+                    toggled(v) => {
+                        Theme.mode = v ? ThemeMode.light : ThemeMode.dark;
+                    }
+                }
 
                 Text {
                     text: "Copy-paste UI for Slint";
@@ -752,6 +773,95 @@ export component AppWindow inherits Window {
                                 font-size: Tokens.typography-body-sm-size;
                                 vertical-alignment: center;
                             }
+                        }
+                    }
+                }
+            }
+
+            // (7) Selection primitives — RadioGroup, Select, Icon
+            if root.active-section == 7: VerticalLayout {
+                spacing: 20px;
+                alignment: start;
+
+                SectionHeading {
+                    title: "Selection";
+                    subtitle: "RadioGroup, Select (in-tree dropdown), and the Icon helper with Lucide-compatible path data.";
+                }
+
+                Card {
+                    variant: CardVariant.solid;
+                    width: 100%;
+                    height: 230px;
+
+                    VerticalLayout {
+                        padding: parent.padding-l;
+                        spacing: parent.gap-l;
+
+                        Label { text: "Pick a plan"; variant: LabelVariant.default; }
+
+                        HorizontalLayout {
+                            spacing: 32px;
+                            alignment: start;
+
+                            VerticalLayout {
+                                spacing: 8px;
+                                alignment: start;
+                                Label { text: "Tier"; variant: LabelVariant.muted; }
+                                RadioGroup {
+                                    items: [
+                                        { value: "free", label: "Free" },
+                                        { value: "pro",  label: "Pro" },
+                                        { value: "team", label: "Team" },
+                                    ];
+                                    selected <=> root.size-radio;
+                                    changed(i) => {
+                                        ToastQueue.show("Tier changed.", ToastVariant.default);
+                                    }
+                                }
+                            }
+
+                            VerticalLayout {
+                                spacing: 8px;
+                                alignment: start;
+                                Label { text: "Billing"; variant: LabelVariant.muted; }
+                                Select {
+                                    items: [
+                                        { value: "monthly", label: "Monthly" },
+                                        { value: "yearly",  label: "Yearly (-20%)" },
+                                        { value: "lifetime", label: "Lifetime" },
+                                    ];
+                                    selected-index <=> root.plan-index;
+                                    placeholder: "Choose billing…";
+                                    changed(i) => {
+                                        ToastQueue.show("Billing updated.", ToastVariant.success);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Card {
+                    variant: CardVariant.glass;
+                    width: 100%;
+                    height: 110px;
+
+                    VerticalLayout {
+                        padding: parent.padding-l;
+                        spacing: 8px;
+
+                        Label { text: "Icons"; variant: LabelVariant.muted; }
+                        HorizontalLayout {
+                            spacing: 14px;
+                            alignment: start;
+                            Icon { commands: LucidePaths.check;          tint: Tokens.color-foreground; size: 20px; }
+                            Icon { commands: LucidePaths.x-mark;         tint: Tokens.color-foreground; size: 20px; }
+                            Icon { commands: LucidePaths.chevron-down;   tint: Tokens.color-foreground; size: 20px; }
+                            Icon { commands: LucidePaths.chevron-right;  tint: Tokens.color-foreground; size: 20px; }
+                            Icon { commands: LucidePaths.plus;           tint: Tokens.color-foreground; size: 20px; }
+                            Icon { commands: LucidePaths.minus;          tint: Tokens.color-foreground; size: 20px; }
+                            Icon { commands: LucidePaths.arrow-right;    tint: Tokens.color-foreground; size: 20px; }
+                            Icon { commands: LucidePaths.arrow-left;     tint: Tokens.color-destructive; size: 20px; }
                         }
                     }
                 }

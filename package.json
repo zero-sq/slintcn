@@ -27,6 +27,9 @@
   "bin": {
     "slintcn": "./bin/slintcn.mjs"
   },
+  "scripts": {
+    "test": "node --test bin/__test__/*.test.mjs"
+  },
   "files": [
     "bin",
     "registry",

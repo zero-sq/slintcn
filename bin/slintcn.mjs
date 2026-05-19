@@ -25,57 +25,114 @@ async function loadRegistry(style) {
   return JSON.parse(raw);
 }
 
-async function loadConfig(cwd) {
+async function loadRawConfig(cwd) {
   const configPath = path.join(cwd, "slintcn.json");
-  if (!(await exists(configPath))) {
-    return null;
-  }
+  if (!(await exists(configPath))) return null;
   return JSON.parse(await readFile(configPath, "utf8"));
 }
 
-function rewriteImports(content) {
-  // After copy, components live next to theme/ under the user's outDir.
-  return content.replace(
-    'import { Tokens } from "../theme/tokens.slint";',
-    'import { Tokens } from "../theme/tokens.slint";',
-  );
+/**
+ * Fill defaults for any keys the user hasn't set. The resolved config carries
+ * absolute paths so downstream code doesn't have to think about cwd.
+ */
+export function resolveConfig(rawConfig, cwd) {
+  const outDir = path.resolve(cwd, rawConfig?.outDir ?? "ui/slintcn");
+  const themeDir = rawConfig?.themeDir
+    ? path.resolve(cwd, rawConfig.themeDir)
+    : path.join(outDir, "theme");
+  const componentsDir = rawConfig?.componentsDir
+    ? path.resolve(cwd, rawConfig.componentsDir)
+    : path.join(outDir, "components");
+  return {
+    style: rawConfig?.style ?? "default",
+    outDir,
+    themeDir,
+    componentsDir,
+  };
 }
 
-async function copyRegistryFile(rel, destRoot) {
-  const src = path.join(ROOT, "registry", "default", rel);
-  const dest = path.join(destRoot, rel);
+/**
+ * Map a registry-relative file (e.g. "components/button.slint") to its
+ * absolute destination based on the user's themeDir / componentsDir.
+ */
+export function routeDest(rel, config) {
+  if (rel.startsWith("theme/")) {
+    return path.join(config.themeDir, rel.slice("theme/".length));
+  }
+  if (rel.startsWith("components/")) {
+    return path.join(config.componentsDir, rel.slice("components/".length));
+  }
+  return path.join(config.outDir, rel);
+}
+
+/**
+ * Rewrite registry-relative imports (`from "../theme/X.slint"` and
+ * `from "../components/Y.slint"`) to be relative to the destination file's
+ * own location, so the user's themeDir / componentsDir layout choices are
+ * honored. Other imports pass through untouched.
+ */
+export function rewriteImports(content, { destAbs, themeDir, componentsDir }) {
+  const resolveTarget = (importPath) => {
+    if (importPath.startsWith("../theme/")) {
+      return path.join(themeDir, importPath.slice("../theme/".length));
+    }
+    if (importPath.startsWith("../components/")) {
+      return path.join(componentsDir, importPath.slice("../components/".length));
+    }
+    return null;
+  };
+
+  return content.replace(/from\s+"([^"]+)"/g, (match, importPath) => {
+    const targetAbs = resolveTarget(importPath);
+    if (!targetAbs) return match;
+    let rel = path.relative(path.dirname(destAbs), targetAbs);
+    if (!rel.startsWith(".") && !rel.startsWith("/")) rel = "./" + rel;
+    // Slint imports use forward slashes regardless of host OS.
+    rel = rel.split(path.sep).join("/");
+    return `from "${rel}"`;
+  });
+}
+
+async function copyRegistryFile(rel, config) {
+  const src = path.join(ROOT, "registry", config.style, rel);
+  const dest = routeDest(rel, config);
   await mkdir(path.dirname(dest), { recursive: true });
   let content = await readFile(src, "utf8");
-  content = rewriteImports(content);
+  content = rewriteImports(content, {
+    destAbs: dest,
+    themeDir: config.themeDir,
+    componentsDir: config.componentsDir,
+  });
   await writeFile(dest, content);
+  return dest;
 }
 
 async function cmdInit(cwd) {
   const configPath = path.join(cwd, "slintcn.json");
   if (await exists(configPath)) {
     console.log("slintcn.json already exists — skipping init");
-    return loadConfig(cwd);
+    return resolveConfig(await loadRawConfig(cwd), cwd);
   }
   const template = await readFile(path.join(ROOT, "templates", "slintcn.json"), "utf8");
   await writeFile(configPath, template);
   console.log("Created slintcn.json");
-  return JSON.parse(template);
+  return resolveConfig(JSON.parse(template), cwd);
 }
 
 async function cmdAdd(cwd, names) {
-  let config = await loadConfig(cwd);
-  if (!config) {
-    config = await cmdInit(cwd);
+  let rawConfig = await loadRawConfig(cwd);
+  if (!rawConfig) {
+    await cmdInit(cwd);
+    rawConfig = await loadRawConfig(cwd);
   }
-
-  const registry = await loadRegistry("default");
-  const outDir = path.join(cwd, config.outDir ?? "ui/slintcn");
+  const config = resolveConfig(rawConfig, cwd);
+  const registry = await loadRegistry(config.style);
 
   const toInstall = new Set(names);
   if (toInstall.has("theme") || toInstall.size === 0) {
     for (const rel of registry.theme.files) {
-      await copyRegistryFile(rel, outDir);
-      console.log(`  + ${rel}`);
+      const dest = await copyRegistryFile(rel, config);
+      console.log(`  + ${path.relative(cwd, dest)}`);
     }
     toInstall.delete("theme");
   }
@@ -89,21 +146,20 @@ async function cmdAdd(cwd, names) {
     }
     if (spec.requires?.includes("theme")) {
       for (const rel of registry.theme.files) {
-        const dest = path.join(outDir, rel);
+        const dest = routeDest(rel, config);
         if (!(await exists(dest))) {
-          await copyRegistryFile(rel, outDir);
-          console.log(`  + ${rel} (dependency)`);
+          await copyRegistryFile(rel, config);
+          console.log(`  + ${path.relative(cwd, dest)} (dependency)`);
         }
       }
     }
     for (const rel of spec.files) {
-      await copyRegistryFile(rel, outDir);
-      console.log(`  + ${rel}`);
+      const dest = await copyRegistryFile(rel, config);
+      console.log(`  + ${path.relative(cwd, dest)}`);
     }
   }
 
-  console.log(`\nInstalled to ${path.relative(cwd, outDir)}/`);
-  console.log('Import: import { Button } from "@/ui/slintcn/components/button.slint";');
+  console.log(`\nInstalled. Import e.g. from "${path.relative(cwd, config.componentsDir)}/button.slint".`);
 }
 
 function usage() {
@@ -148,7 +204,10 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Only run main() when invoked directly (not when imported by tests).
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

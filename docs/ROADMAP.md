@@ -167,10 +167,19 @@ showcase to PNG without a display — pushed to v0.7.
 
 ## v0.7 — pending
 
-- [ ] **PopupWindow-based Select dropdown** — port Select to
-      PopupWindow with outside-click-close. Tooltip migration proved
-      the pattern; Select adds the wrinkle of an interactive list
-      inside the popup.
+- [ ] **PopupWindow-based Select dropdown** — probed in v0.6 and
+      hit a real Slint 1.16 limit: PopupWindow has no `closed`
+      callback, so when the user clicks outside with
+      `close-policy: close-on-click-outside` the popup hides
+      itself but our internal `open` flag stays stale (the next
+      Enter on the trigger would commit instead of re-opening).
+      Three paths forward:
+        1. Build the dropdown out of two pieces — a full-window
+           transparent scrim TouchArea that explicitly closes the
+           popup + a PopupWindow for the panel itself.
+        2. Patch Slint upstream to add a `closed` callback.
+        3. Accept "Select closes only on item-click / Escape /
+           trigger toggle" — drop close-on-click-outside.
 - [ ] **Generalized modal focus trap** (Sheet @children + Dialog
       with body inputs) — likely a `focusables: [length]` prop on
       modals so consumers register their controls.

@@ -1,12 +1,33 @@
 # slintcn roadmap
 
-## v0.1 — prove "not ugly" (current)
+## v0.1 — prove "not ugly"
 
 - [x] `Tokens` dark glass theme
 - [x] Button (8 variants, 8 sizes)
 - [x] Card, Input, Badge
 - [x] Showcase app
 - [x] CLI `init` + `add`
+
+## v0.1.1 — foundation hardening (current)
+
+Pays down the v0.1 debt that would compound across every overlay
+added in v0.2. No new components — every existing surface upgraded
+to be Slint-idiomatic, accessible, and dogfood-verified.
+
+- [x] Token system split: `Palette` (raw) + `Tokens` (semantic) for
+      cheap future light-theme swap
+- [x] Typed enums for variant / size — `variant: "outlin"` typos
+      become compile errors instead of silent fallthroughs
+- [x] Button refactor: per-variant resolution into rest/hover pairs;
+      adding a 9th variant is one row, not six ternary edits
+- [x] Keyboard activation (Enter / Space) + visible 2px focus ring
+      on Button and Input, driven by `Tokens.color-ring`
+- [x] Card hover is self-tracked via internal `TouchArea`
+- [x] CLI `rewriteImports` actually rewrites + honors
+      `themeDir` / `componentsDir` config (covered by `node:test`)
+- [x] Showcase regenerates itself through `slintcn add` on every
+      `cargo build` — no more bypass of the user code path
+- [x] `make verify` (npm test + cargo build + clippy -D warnings)
 
 ## v0.2 — shadcn parity (SaaS shell)
 

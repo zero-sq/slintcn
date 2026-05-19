@@ -18,10 +18,15 @@ you copy into your repo and customize.
 SaaS-first is a **wedge**, not a ceiling. Once tokens + motion + hover semantics
 exist, a second registry (`registry/game/`) is just more `.slint` files.
 
+## Prerequisites
+
+- **Rust** with Slint 1.16 (for the showcase or your Slint app)
+- **Node 20+** (the CLI runtime)
+
 ## Quick start
 
 ```bash
-# Run the visual showcase (requires Rust + Slint 1.16)
+# Run the visual showcase
 cd examples/showcase && cargo run
 
 # Install components into your Slint project
@@ -33,14 +38,31 @@ node /path/to/slintcn/bin/slintcn.mjs add button card input
 Files land in `ui/slintcn/` — **you own them**. Change colors in
 `ui/slintcn/theme/tokens.slint`, tweak `button.slint` for your product.
 
+```slint
+import { Button, ButtonVariant, ButtonSize } from "slintcn/components/button.slint";
+
+Button {
+    variant: ButtonVariant.glow;
+    size: ButtonSize.lg;
+    text: "Ship it";
+    clicked => { /* … */ }
+}
+```
+
+Variants and sizes are **typed enums** — a typo fails to compile rather than
+silently falling through to the default styling.
+
 ## Components (default registry)
 
-| Component | Variants |
-|-----------|----------|
-| **Button** | default, outline, secondary, ghost, destructive, link, glow, glass |
-| **Card** | solid, glass, glassInteractive, raised |
-| **Input** | focus ring, placeholder, password |
-| **Badge** | default, secondary, outline, destructive |
+| Component | Variants | Sizes |
+|-----------|----------|-------|
+| **Button** | default · outline · secondary · ghost · link · destructive · glow · glass | xs · sm · default · lg · icon (× 4 sizes) |
+| **Card** | solid · glass · glass-interactive · raised | sm · default |
+| **Input** | (focus ring · placeholder · password · auto-focus) | — |
+| **Badge** | default · secondary · outline · destructive | sm · default |
+
+Keyboard activation (Enter / Space) and a visible 2px focus ring are wired into
+every interactive primitive.
 
 ## vs alternatives
 
@@ -53,12 +75,17 @@ Files land in `ui/slintcn/` — **you own them**. Change colors in
 ## Project layout
 
 ```
-registry/default/     # Source of truth (published with npm package)
-  theme/tokens.slint
-  components/*.slint
-examples/showcase/    # Runnable gallery
-bin/slintcn.mjs       # init + add CLI
+registry/default/      # Source of truth (published with npm package)
+  theme/palette.slint  #   raw color/alpha primitives
+  theme/tokens.slint   #   semantic layer (components read this)
+  components/*.slint   #   button, card, input, badge
+examples/showcase/     # Runnable gallery (regenerated via slintcn add)
+bin/slintcn.mjs        # init + add CLI
+bin/__test__/          # node:test suite (run via `make test`)
 ```
+
+Run `make verify` before committing — it runs node tests, `cargo build`, and
+`cargo clippy -D warnings` end-to-end.
 
 ## Roadmap
 

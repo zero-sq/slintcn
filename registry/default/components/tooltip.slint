@@ -1,4 +1,4 @@
-// slintcn Tooltip — small floating panel above/below/beside the wrapped trigger.
+// slintcn Tooltip — hover-revealed bubble using Slint's PopupWindow.
 //
 // Usage:
 //   Tooltip {
@@ -7,12 +7,21 @@
 //       Button { text: "Save"; }
 //   }
 //
-// The first child (any single element) is the trigger; its bounding box
-// defines Tooltip's own area. Hover on the trigger fades the bubble in.
+// PopupWindow lets the bubble render on a layer above the parent window,
+// so the trigger can sit anywhere inside a deeply nested layout without
+// the bubble being clipped by its surrounding component. (The popup is
+// still bounded by the parent Window's edges — for near-edge triggers the
+// `side` prop chooses which way to lean.)
 //
-// v0.2 limitation: the bubble is an in-tree element. If the trigger sits
-// near a window edge, the bubble can be clipped by the window. v0.3 may
-// switch to PopupWindow for edge-aware positioning.
+// Implementation notes:
+//   - Slint's PopupWindow is shown/closed imperatively via .show() /
+//     .close(). We watch a computed `trigger-hovered` property via the
+//     `changed` callback and call show/close accordingly.
+//   - PopupWindow positions itself at (x, y) relative to its parent
+//     element (Tooltip). We pre-compute bubble dimensions so we can
+//     anchor by side without measuring asynchronously.
+//   - close-policy: no-auto-close — the popup is driven by hover state,
+//     not by user clicks.
 
 import { Tokens } from "../theme/tokens.slint";
 
@@ -22,51 +31,66 @@ export component Tooltip {
     in property <string> text;
     in property <TooltipSide> side: TooltipSide.top;
 
-    // Hover tracker sits z-below @children so the wrapped element keeps its
-    // own click/keyboard interaction. Slint propagates hover to all overlapping
-    // elements regardless of z-order, so trigger-area.has-hover still fires.
-    trigger-area := TouchArea { }
+    property <length> bubble-width:  measure-text.preferred-width  + 16px;
+    property <length> bubble-height: measure-text.preferred-height + 8px;
 
+    trigger-area := TouchArea { }
     @children
 
-    bubble := Rectangle {
-        background: Tokens.color-card;
-        border-color: Tokens.color-border-hairline-strong;
-        border-width: 1px;
-        border-radius: Tokens.radius-md;
-        drop-shadow-blur:     Tokens.shadow-e2-blur;
-        drop-shadow-offset-y: Tokens.shadow-e2-offset-y;
-        drop-shadow-color:    Tokens.shadow-e2-color;
+    // Hidden Text used only to measure the popup's preferred size. Sized
+    // 0×0 so it doesn't affect layout; we just read preferred-width/height.
+    measure-text := Text {
+        x: 0;
+        y: 0;
+        width:  0;
+        height: 0;
+        text: root.text;
+        font-size: Tokens.typography-body-sm-size;
+        visible: false;
+    }
 
-        width:  tooltip-text.preferred-width  + 16px;
-        height: tooltip-text.preferred-height + 8px;
+    property <bool> trigger-hovered: trigger-area.has-hover;
+    changed trigger-hovered => {
+        if (self.trigger-hovered) { popup.show(); }
+        else                       { popup.close(); }
+    }
+
+    popup := PopupWindow {
+        close-policy: no-auto-close;
 
         x: side == TooltipSide.left
-            ? -self.width - 8px :
+            ? -root.bubble-width - 8px :
            side == TooltipSide.right
-            ? root.width + 8px :
+            ? parent.width + 8px :
            /* top | bottom */
-            (root.width - self.width) / 2;
+            (parent.width - root.bubble-width) / 2;
 
         y: side == TooltipSide.top
-            ? -self.height - 8px :
+            ? -root.bubble-height - 8px :
            side == TooltipSide.bottom
-            ? root.height + 8px :
+            ? parent.height + 8px :
            /* left | right */
-            (root.height - self.height) / 2;
+            (parent.height - root.bubble-height) / 2;
 
-        opacity: trigger-area.has-hover ? 1.0 : 0.0;
-        animate opacity {
-            duration: Tokens.motion-fast;
-            easing: Tokens.motion-easing-standard;
-        }
+        width:  root.bubble-width;
+        height: root.bubble-height;
 
-        tooltip-text := Text {
-            x: 8px;
-            y: 4px;
-            text: root.text;
-            color: Tokens.color-foreground;
-            font-size: Tokens.typography-body-sm-size;
+        Rectangle {
+            background: Tokens.color-card;
+            border-color: Tokens.color-border-hairline-strong;
+            border-width: 1px;
+            border-radius: Tokens.radius-md;
+            drop-shadow-blur:     Tokens.shadow-e2-blur;
+            drop-shadow-offset-y: Tokens.shadow-e2-offset-y;
+            drop-shadow-color:    Tokens.shadow-e2-color;
+
+            Text {
+                x: 8px;
+                y: 4px;
+                text: root.text;
+                color: Tokens.color-foreground;
+                font-size: Tokens.typography-body-sm-size;
+            }
         }
     }
 }

@@ -9,36 +9,42 @@
 //
 // PopupWindow lets the bubble render on a layer above the parent window,
 // so the trigger can sit anywhere inside a deeply nested layout without
-// the bubble being clipped by its surrounding component. (The popup is
-// still bounded by the parent Window's edges — for near-edge triggers the
-// `side` prop chooses which way to lean.)
+// the bubble being clipped by its surrounding component.
 //
 // Implementation notes:
 //   - Slint's PopupWindow is shown/closed imperatively via .show() /
-//     .close(). We watch a computed `trigger-hovered` property via the
-//     `changed` callback and call show/close accordingly.
-//   - PopupWindow positions itself at (x, y) relative to its parent
-//     element (Tooltip). We pre-compute bubble dimensions so we can
-//     anchor by side without measuring asynchronously.
-//   - close-policy: no-auto-close — the popup is driven by hover state,
-//     not by user clicks.
+//     .close(). We watch `trigger-hovered` via `changed` and call show/close.
+//   - The wrapped child sits inside a HorizontalLayout so Tooltip exposes a
+//     real preferred-width / preferred-height to its parent layout. Without
+//     this, Tooltip collapsed to 0×0 in sibling layouts (the trigger would
+//     visually overlap its neighbours — bug fixed in v0.8.1).
 
 import { Tokens } from "../theme/tokens.slint";
 
 export enum TooltipSide { top, right, bottom, left }
 
-export component Tooltip {
+export component Tooltip inherits Rectangle {
     in property <string> text;
     in property <TooltipSide> side: TooltipSide.top;
+
+    background: transparent;
+
+    // Size to the wrapped child by routing @children through a single
+    // HorizontalLayout — Tooltip's preferred dimensions then equal the
+    // layout's, which equal the child's.
+    preferred-width:  child-layout.preferred-width;
+    preferred-height: child-layout.preferred-height;
 
     property <length> bubble-width:  measure-text.preferred-width  + 16px;
     property <length> bubble-height: measure-text.preferred-height + 8px;
 
-    trigger-area := TouchArea { }
-    @children
+    child-layout := HorizontalLayout {
+        @children
+    }
 
-    // Hidden Text used only to measure the popup's preferred size. Sized
-    // 0×0 so it doesn't affect layout; we just read preferred-width/height.
+    trigger-area := TouchArea { }
+
+    // Hidden Text used only to measure the popup's preferred size.
     measure-text := Text {
         x: 0;
         y: 0;

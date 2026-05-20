@@ -33,7 +33,7 @@ export struct SelectItem {
     label: string,
 }
 
-export component Select {
+export component Select inherits Rectangle {
     in property <[SelectItem]> items;
     in-out property <int> selected-index: -1;
     in property <string> placeholder: "Select…";
@@ -41,8 +41,15 @@ export component Select {
     in-out property <int> highlighted-index: 0;
     callback changed(int);
 
+    // `inherits Rectangle` + explicit dimensions so parent layouts get a
+    // concrete preferred size — without this, Select collapsed to 0×0 in
+    // sibling columns (bug fixed in v0.8.1). The Rectangle itself is
+    // transparent; `trigger` paints the styled background.
+    background: transparent;
+    min-width:        220px;
     preferred-width:  220px;
-    preferred-height: 36px;
+    min-height:        36px;
+    preferred-height:  36px;
 
     function open-dropdown() {
         root.highlighted-index = root.selected-index >= 0

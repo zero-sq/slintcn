@@ -97,12 +97,20 @@ component RadioRow inherits Rectangle {
     }
 }
 
-export component RadioGroup {
+export component RadioGroup inherits Rectangle {
     in property <[RadioItem]> items;
     in-out property <int> selected: 0;
     in property <bool> disabled: false;
     in property <RadioOrientation> orientation: RadioOrientation.vertical;
     callback changed(int);
+
+    // `inherits Rectangle` + explicit min sizes so parent layouts honor the
+    // RadioGroup's footprint. Without this, sibling columns squished the
+    // group to 0-width and Radio items spilled into adjacent columns
+    // (bug fixed in v0.8.1).
+    background: transparent;
+    min-width: 120px;
+    preferred-width: 120px;
 
     forward-focus: nav;
     nav := FocusScope {

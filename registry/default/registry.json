@@ -1,161 +1,319 @@
 {
-  "$schema": "https://slintcn.dev/schema/registry.json",
+  "$schema": "https://slintcn.dev/schema/registry.schema.json",
   "name": "default",
+  "homepage": "https://stevekwon211.github.io/slintcn",
+  "version": "0.14.0",
   "description": "Dark glass theme — shadcn-adjacent primitives for Slint",
   "slintVersion": ">=1.16",
   "theme": {
+    "type": "registry:theme",
+    "title": "Theme",
+    "description": "Palette + semantic Tokens (dark/light via Theme.mode).",
+    "category": "theme",
     "files": ["theme/palette.slint", "theme/tokens.slint"]
   },
   "components": {
     "button": {
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "Clickable action — 8 variants × 8 sizes, focus ring, press feedback.",
+      "category": "actions",
       "files": ["components/button.slint"],
       "requires": ["theme"]
     },
     "card": {
+      "type": "registry:ui",
+      "title": "Card",
+      "description": "Surface container + CardHeader/Title/Description/Content/Footer.",
+      "category": "layout",
       "files": ["components/card.slint"],
       "requires": ["theme"]
     },
     "input": {
+      "type": "registry:ui",
+      "title": "Input",
+      "description": "Single-line text field with focus ring and placeholder.",
+      "category": "form",
       "files": ["components/input.slint"],
       "requires": ["theme"]
     },
     "badge": {
+      "type": "registry:ui",
+      "title": "Badge",
+      "description": "Small status label — default/secondary/outline/destructive/ghost/link.",
+      "category": "display",
       "files": ["components/badge.slint"],
       "requires": ["theme"]
     },
     "separator": {
+      "type": "registry:ui",
+      "title": "Separator",
+      "description": "Horizontal or vertical hairline divider.",
+      "category": "layout",
       "files": ["components/separator.slint"],
       "requires": ["theme"]
     },
     "label": {
+      "type": "registry:ui",
+      "title": "Label",
+      "description": "Form label — default/muted/required (asterisk).",
+      "category": "form",
       "files": ["components/label.slint"],
       "requires": ["theme"]
     },
     "popup-helpers": {
+      "type": "registry:lib",
+      "title": "Popup helpers",
+      "description": "Shared Scrim + modal scaffolding used by Dialog/AlertDialog/Sheet.",
+      "category": "internal",
       "files": ["components/popup-helpers.slint"],
       "requires": ["theme"]
     },
     "dialog": {
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "Modal overlay with title/description, X-close, click-outside dismiss.",
+      "category": "overlay",
       "files": ["components/dialog.slint"],
       "requires": ["theme", "popup-helpers", "button", "separator", "icon", "lucide-paths"]
     },
     "alert-dialog": {
+      "type": "registry:ui",
+      "title": "Alert Dialog",
+      "description": "Destructive-confirm modal — Cancel + Action, no backdrop dismiss.",
+      "category": "overlay",
       "files": ["components/alert-dialog.slint"],
       "requires": ["theme", "popup-helpers", "button", "separator"]
     },
     "sheet": {
+      "type": "registry:ui",
+      "title": "Sheet",
+      "description": "Side-anchored drawer (top/right/bottom/left) with slide animation.",
+      "category": "overlay",
       "files": ["components/sheet.slint"],
       "requires": ["theme", "popup-helpers"]
     },
     "tooltip": {
+      "type": "registry:ui",
+      "title": "Tooltip",
+      "description": "Hover bubble (inverted) in a PopupWindow that escapes parent bounds.",
+      "category": "overlay",
       "files": ["components/tooltip.slint"],
       "requires": ["theme"]
     },
     "toast": {
+      "type": "registry:ui",
+      "title": "Toast",
+      "description": "Stacked notification queue (Rust-backed VecModel) with fade-out.",
+      "category": "feedback",
       "files": ["components/toast.slint"],
       "requires": ["theme"]
     },
     "tabs": {
+      "type": "registry:ui",
+      "title": "Tabs",
+      "description": "Segmented control or line variant; arrow-key navigation.",
+      "category": "navigation",
       "files": ["components/tabs.slint"],
       "requires": ["theme"]
     },
     "checkbox": {
+      "type": "registry:ui",
+      "title": "Checkbox",
+      "description": "Path-drawn check with optional label; Space toggles.",
+      "category": "form",
       "files": ["components/checkbox.slint"],
       "requires": ["theme"]
     },
     "switch": {
+      "type": "registry:ui",
+      "title": "Switch",
+      "description": "Sliding on/off toggle (36×20 track) with optional label.",
+      "category": "form",
       "files": ["components/switch.slint"],
       "requires": ["theme"]
     },
     "icon": {
+      "type": "registry:ui",
+      "title": "Icon",
+      "description": "Path-stroke icon (24-unit viewBox) with size + tint.",
+      "category": "media",
       "files": ["components/icon.slint"],
       "requires": ["theme"]
     },
     "lucide-paths": {
+      "type": "registry:lib",
+      "title": "Lucide paths",
+      "description": "Bundled Lucide icon command strings (check, chevron-*, x-mark, …).",
+      "category": "internal",
       "files": ["components/lucide-paths.slint"],
       "requires": []
     },
     "radio-group": {
+      "type": "registry:ui",
+      "title": "Radio Group",
+      "description": "Single-select group, vertical or horizontal, arrow-key nav.",
+      "category": "form",
       "files": ["components/radio-group.slint"],
       "requires": ["theme"]
     },
     "select": {
+      "type": "registry:ui",
+      "title": "Select",
+      "description": "Trigger + PopupWindow dropdown (close-on-click-outside).",
+      "category": "form",
       "files": ["components/select.slint"],
       "requires": ["theme", "icon", "lucide-paths"]
     },
     "progress": {
+      "type": "registry:ui",
+      "title": "Progress",
+      "description": "Horizontal value bar (0–100) with animated fill.",
+      "category": "feedback",
       "files": ["components/progress.slint"],
       "requires": ["theme"]
     },
     "skeleton": {
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "description": "Pulsing placeholder for loading states.",
+      "category": "feedback",
       "files": ["components/skeleton.slint"],
       "requires": ["theme"]
     },
     "avatar": {
+      "type": "registry:ui",
+      "title": "Avatar",
+      "description": "Circular image with initials fallback; size variants.",
+      "category": "media",
       "files": ["components/avatar.slint"],
       "requires": ["theme"]
     },
     "alert": {
+      "type": "registry:ui",
+      "title": "Alert",
+      "description": "Bordered callout (icon + title + description); default/destructive.",
+      "category": "feedback",
       "files": ["components/alert.slint"],
       "requires": ["theme", "icon"]
     },
     "textarea": {
+      "type": "registry:ui",
+      "title": "Textarea",
+      "description": "Multi-line word-wrapping text field with focus ring.",
+      "category": "form",
       "files": ["components/textarea.slint"],
       "requires": ["theme"]
     },
     "toggle": {
+      "type": "registry:ui",
+      "title": "Toggle",
+      "description": "Two-state pressable button (default/outline).",
+      "category": "form",
       "files": ["components/toggle.slint"],
       "requires": ["theme"]
     },
     "toggle-group": {
+      "type": "registry:ui",
+      "title": "Toggle Group",
+      "description": "Single-select row of toggles.",
+      "category": "form",
       "files": ["components/toggle-group.slint"],
       "requires": ["theme"]
     },
     "accordion": {
+      "type": "registry:ui",
+      "title": "Accordion",
+      "description": "Single-open collapsible with animated height + chevron swap.",
+      "category": "display",
       "files": ["components/accordion.slint"],
       "requires": ["theme", "icon", "lucide-paths", "separator"]
     },
     "slider": {
+      "type": "registry:ui",
+      "title": "Slider",
+      "description": "Draggable value slider (track + thumb), arrow-key support.",
+      "category": "form",
       "files": ["components/slider.slint"],
       "requires": ["theme"]
     },
     "breadcrumb": {
+      "type": "registry:ui",
+      "title": "Breadcrumb",
+      "description": "Navigation path with chevron separators; last item = current.",
+      "category": "navigation",
       "files": ["components/breadcrumb.slint"],
       "requires": ["theme", "icon", "lucide-paths"]
     },
     "pagination": {
+      "type": "registry:ui",
+      "title": "Pagination",
+      "description": "Prev / page-numbers / next with active highlight.",
+      "category": "navigation",
       "files": ["components/pagination.slint"],
       "requires": ["theme", "icon", "lucide-paths"]
     },
     "table": {
+      "type": "registry:ui",
+      "title": "Table",
+      "description": "Header + rows, equal-stretch columns, hairline dividers.",
+      "category": "data",
       "files": ["components/table.slint"],
       "requires": ["theme", "separator"]
     },
     "text": {
+      "type": "registry:ui",
+      "title": "Text",
+      "description": "Typography scale — 8 variants × 5 tones (import as Typography).",
+      "category": "typography",
       "files": ["components/text.slint"],
       "requires": ["theme"]
     },
     "keycap": {
+      "type": "registry:ui",
+      "title": "Keycap",
+      "description": "Keyboard-hint cap for HUDs — size × tone (affirm/deny).",
+      "category": "hud",
       "files": ["components/keycap.slint"],
       "requires": ["theme"]
     },
     "hud-pill": {
+      "type": "registry:ui",
+      "title": "HUD Pill",
+      "description": "Rounded-full HUD status pill (scrim0/1/2).",
+      "category": "hud",
       "files": ["components/hud-pill.slint"],
       "requires": ["theme"]
     },
     "slot-tile": {
+      "type": "registry:ui",
+      "title": "Slot Tile",
+      "description": "Inventory / hotbar slot (tone × state × interactive), holds children.",
+      "category": "hud",
       "files": ["components/slot-tile.slint"],
       "requires": ["theme"]
     },
     "scroll-area": {
+      "type": "registry:ui",
+      "title": "Scroll Area",
+      "description": "Clipped Flickable viewport with a slim custom scrollbar.",
+      "category": "layout",
       "files": ["components/scroll-area.slint"],
       "requires": ["theme"]
     },
     "popover": {
+      "type": "registry:ui",
+      "title": "Popover",
+      "description": "Click-triggered floating panel; closes on click outside.",
+      "category": "overlay",
       "files": ["components/popover.slint"],
       "requires": ["theme"]
     },
     "context-menu": {
+      "type": "registry:ui",
+      "title": "Context Menu",
+      "description": "Right-click menu over an area; opens at the cursor.",
+      "category": "overlay",
       "files": ["components/context-menu.slint"],
       "requires": ["theme"]
     }

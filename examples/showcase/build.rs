@@ -17,6 +17,7 @@ fn main() {
             "icon", "lucide-paths", "radio-group", "select",
             "progress", "skeleton", "avatar", "alert",
             "textarea", "toggle", "toggle-group", "accordion",
+            "slider", "breadcrumb", "pagination", "table",
         ])
         .status()
         .expect("failed to invoke `node` for the slintcn CLI (need Node 20+ on PATH)");

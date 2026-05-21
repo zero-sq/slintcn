@@ -24,7 +24,8 @@ you copy into your repo and customize.
 | **v0.8** | PopupWindow Select (focus-based) + Toast fade-out + per-section snapshots + GitHub Actions | ✅ |
 | **v0.9** | **shadcn fidelity pass** — token recalibration (h-9, px-4, radius 10, spacing-xl/2xl), segmented Tabs, Dialog X-close + p-6 + click-absorb, all 18 primitives to measured shadcn specs | ✅ |
 | **v0.10** | **Breadth batch A** — Accordion, Avatar, Textarea, Progress, Alert, Skeleton, Toggle, ToggleGroup (26 components) | ✅ |
-| **v0.11** | Breadth batch B — Breadcrumb, Pagination, Table, Slider | upcoming |
+| **v0.11** | **Breadth batch B** — Breadcrumb, Pagination, Table, Slider (30 components) | ✅ |
+| **v0.12** | Breadth batch C — Popover, DropdownMenu, Combobox, HoverCard, ContextMenu (overlays) | upcoming |
 | **v1.0** | Game HUD registry — hotbar, reticle, keycap hints | later |
 
 SaaS-first is a **wedge**, not a ceiling. Once tokens + motion + hover semantics
@@ -106,6 +107,14 @@ silently falling through to the default styling.
 | **Progress** | horizontal bar | `value: float` (0–100) |
 | **Skeleton** | pulsing placeholder | `radius`; size via width/height |
 
+### Navigation & data
+| Component | Purpose | Notable props |
+|-----------|---------|---------------|
+| **Breadcrumb** | navigation path with chevron separators | `items: [BreadcrumbItem]`, `navigate(int)` (last item = current) |
+| **Pagination** | prev / page-numbers / next | `total: int`, `current: int` (0-based), `changed(int)` |
+| **Slider** | draggable value slider + arrow keys | `value: float`, `minimum`, `maximum`, `changed(float)` |
+| **Table** | header + rows, equal-stretch columns | `columns: [string]`, `rows: [TableRow]` (`cells: [string]`) |
+
 ### Iconography & theming
 | Component | Purpose | Notable props |
 |-----------|---------|---------------|
@@ -179,7 +188,7 @@ closed modals don't block interaction with the underlying UI.
 registry/default/         # Source of truth (published with npm package)
   theme/palette.slint     #   raw color/alpha primitives
   theme/tokens.slint      #   semantic layer (components read this)
-  components/*.slint      #   26 primitives + popup-helpers + lucide-paths
+  components/*.slint      #   30 primitives + popup-helpers + lucide-paths
 examples/showcase/        # Runnable gallery (regenerated via `slintcn add`)
 bin/slintcn.mjs           # init + add CLI (transitive deps)
 bin/__test__/             # node:test suite — `make test`

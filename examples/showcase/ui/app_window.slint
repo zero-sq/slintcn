@@ -37,6 +37,10 @@ import { Textarea }                             from "slintcn/components/textare
 import { Toggle, ToggleVariant }                from "slintcn/components/toggle.slint";
 import { ToggleGroup, ToggleGroupItem }         from "slintcn/components/toggle-group.slint";
 import { Accordion, AccordionItem }             from "slintcn/components/accordion.slint";
+import { Slider }                               from "slintcn/components/slider.slint";
+import { Breadcrumb, BreadcrumbItem }           from "slintcn/components/breadcrumb.slint";
+import { Pagination }                           from "slintcn/components/pagination.slint";
+import { Table, TableRow }                      from "slintcn/components/table.slint";
 
 // Sidebar nav item — local helper, not part of the registry.
 component NavItem inherits Rectangle {
@@ -115,6 +119,8 @@ export component AppWindow inherits Window {
     in-out property <int>  accordion-open: 0;
     in-out property <int>  align-toggle: 1;
     in-out property <bool> bold-toggle: true;
+    in-out property <float> volume: 60;
+    in-out property <int>  page-current: 2;
 
     HorizontalLayout {
         padding: Tokens.spacing-xl;
@@ -143,7 +149,7 @@ export component AppWindow inherits Window {
                         font-weight: Tokens.typography-weight-semibold;
                     }
                     Badge {
-                        text: "v0.10";
+                        text: "v0.11";
                         variant: BadgeVariant.secondary;
                         size: BadgeSize.sm;
                     }
@@ -187,6 +193,16 @@ export component AppWindow inherits Window {
                     label: "Display";
                     active: root.active-section == 9;
                     clicked => { root.active-section = 9; }
+                }
+                NavItem {
+                    label: "Navigation";
+                    active: root.active-section == 10;
+                    clicked => { root.active-section = 10; }
+                }
+                NavItem {
+                    label: "Data";
+                    active: root.active-section == 11;
+                    clicked => { root.active-section = 11; }
                 }
 
                 Rectangle { height: 12px; background: transparent; }
@@ -308,7 +324,7 @@ export component AppWindow inherits Window {
                             spacing: 8px;
                             alignment: start;
                             Label { text: "Sign up for the beta"; variant: LabelVariant.default; }
-                            Badge { text: "v0.10"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
+                            Badge { text: "v0.11"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
                         }
 
                         VerticalLayout {
@@ -1006,6 +1022,69 @@ export component AppWindow inherits Window {
                                 { title: "Is it accessible?", content: "Yes. Enter / Space toggle, arrow keys navigate where applicable." },
                                 { title: "Is it styled?", content: "It uses the slintcn token system — dark glass by default, light via Theme.mode." },
                                 { title: "Is it animated?", content: "Content height animates on expand/collapse using the motion-base duration." },
+                            ];
+                        }
+                    }
+                }
+            }
+
+            // (10) Navigation — Breadcrumb, Pagination, Slider
+            if root.active-section == 10: VerticalLayout {
+                spacing: Tokens.spacing-lg;
+                alignment: start;
+
+                SectionHeading {
+                    title: "Navigation";
+                    subtitle: "Breadcrumb, Pagination, and Slider.";
+                }
+
+                Label { text: "Breadcrumb"; variant: LabelVariant.muted; }
+                Breadcrumb {
+                    items: [
+                        { label: "Home" },
+                        { label: "Components" },
+                        { label: "Navigation" },
+                    ];
+                    navigate(i) => { ToastQueue.show("Navigate to crumb \{i}", ToastVariant.default); }
+                }
+
+                Label { text: "Pagination"; variant: LabelVariant.muted; }
+                Pagination {
+                    total: 5;
+                    current <=> root.page-current;
+                    changed(p) => { ToastQueue.show("Page \{p + 1}", ToastVariant.default); }
+                }
+
+                Label { text: "Slider (volume)"; variant: LabelVariant.muted; }
+                Slider {
+                    width: 320px;
+                    value <=> root.volume;
+                }
+            }
+
+            // (11) Data — Table
+            if root.active-section == 11: VerticalLayout {
+                spacing: Tokens.spacing-lg;
+                alignment: start;
+
+                SectionHeading {
+                    title: "Data";
+                    subtitle: "Table — header + rows aligned by equal-stretch columns.";
+                }
+
+                Card {
+                    variant: CardVariant.solid;
+                    width: 100%;
+                    height: 280px;
+                    VerticalLayout {
+                        padding: parent.padding-l;
+                        Table {
+                            columns: ["Invoice", "Status", "Method", "Amount"];
+                            rows: [
+                                { cells: ["INV-001", "Paid", "Card", "$ 250.00"] },
+                                { cells: ["INV-002", "Pending", "Transfer", "$ 1,200.00"] },
+                                { cells: ["INV-003", "Paid", "Card", "$ 84.00"] },
+                                { cells: ["INV-004", "Overdue", "PayPal", "$ 540.00"] },
                             ];
                         }
                     }

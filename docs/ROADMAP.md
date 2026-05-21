@@ -1,6 +1,21 @@
 # slintcn roadmap
 
-## v0.10 — breadth batch A (current)
+## v0.11 — breadth batch B (current)
+
+Navigation + data primitives. 26 → 30 components.
+
+- [x] **Breadcrumb** — chevron-separated path; last item is the current
+      page (foreground, non-clickable), earlier items fire `navigate(int)`.
+- [x] **Pagination** — prev / page-numbers / next; active page highlighted;
+      `total` + 0-based `current`, `changed(int)`. Uses `for page in total`.
+- [x] **Slider** — track + filled + draggable thumb; drag via TouchArea
+      moved/pressed + mouse-x, ←/→ arrow keys, focus ring; `value` 0–100.
+- [x] **Table** — `columns: [string]` header + `rows: [TableRow{cells}]`;
+      equal-stretch columns, row hover, hairline dividers.
+- [x] Showcase: new **Navigation** (Breadcrumb/Pagination/Slider) and
+      **Data** (Table) sections.
+
+## v0.10 — breadth batch A
 
 Eight static (no-popup) primitives, born on the v0.9-calibrated token system.
 18 → 26 components.

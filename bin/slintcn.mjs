@@ -173,8 +173,10 @@ export function rewriteImports(content, { destAbs, themeDir, componentsDir }) {
   });
 }
 
-async function copyRegistryFile(rel, config) {
-  const src = path.join(ROOT, "registry", config.style, rel);
+// `srcRel` lets the source differ from the destination path (used for
+// base-color palette variants: read palette-zinc.slint, write palette.slint).
+async function copyRegistryFile(rel, config, srcRel = rel) {
+  const src = path.join(ROOT, "registry", config.style, srcRel);
   const dest = routeDest(rel, config);
   await mkdir(path.dirname(dest), { recursive: true });
   let content = await readFile(src, "utf8");
@@ -187,15 +189,16 @@ async function copyRegistryFile(rel, config) {
   return dest;
 }
 
-async function cmdInit(cwd) {
+async function cmdInit(cwd, opts = {}) {
   const configPath = path.join(cwd, "slintcn.json");
   if (await exists(configPath)) {
     console.log("slintcn.json already exists — skipping init");
     return resolveConfig(await loadRawConfig(cwd), cwd);
   }
-  const template = await readFile(path.join(ROOT, "templates", "slintcn.json"), "utf8");
-  await writeFile(configPath, template);
-  console.log("Created slintcn.json");
+  const raw = JSON.parse(await readFile(path.join(ROOT, "templates", "slintcn.json"), "utf8"));
+  if (opts.baseColor) raw.baseColor = opts.baseColor;
+  await writeFile(configPath, JSON.stringify(raw, null, 2) + "\n");
+  console.log(`Created slintcn.json${opts.baseColor ? ` (baseColor: ${opts.baseColor})` : ""}`);
 
   // If this looks like a Rust crate, print a copy-pasteable build.rs
   // snippet so the user can wire slint_build to invoke slintcn add on
@@ -223,7 +226,7 @@ with every cargo build:
 `);
   }
 
-  return resolveConfig(JSON.parse(template), cwd);
+  return resolveConfig(raw, cwd);
 }
 
 /**
@@ -256,9 +259,18 @@ export function resolveInstallOrder(requestedNames, registry) {
 async function installItem(name, config, registry, cwd) {
   if (name === "theme") {
     for (const rel of registry.theme.files) {
+      // base-color: swap the default palette for the chosen variant's source,
+      // still writing to palette.slint so tokens.slint's import resolves.
+      let srcRel = rel;
+      if (rel === "theme/palette.slint" && config.baseColor && config.baseColor !== "neutral") {
+        const variant = `theme/palette-${config.baseColor}.slint`;
+        if (await exists(path.join(ROOT, "registry", config.style, variant))) {
+          srcRel = variant;
+        }
+      }
       const dest = routeDest(rel, config);
       if (!(await exists(dest))) {
-        await copyRegistryFile(rel, config);
+        await copyRegistryFile(rel, config, srcRel);
         console.log(`  + ${path.relative(cwd, dest)}`);
       }
     }
@@ -469,10 +481,13 @@ async function main() {
   const cwd = process.cwd();
 
   switch (command) {
-    case "init":
-      await cmdInit(cwd);
+    case "init": {
+      const bi = args.findIndex((a) => a === "--base-color" || a === "-b");
+      const baseColor = bi >= 0 ? args[bi + 1] : undefined;
+      await cmdInit(cwd, { baseColor });
       await cmdAdd(cwd, ["theme"]);
       break;
+    }
     case "add":
       if (args.length === 0) {
         console.error("Specify at least one component: button, card, input, badge");

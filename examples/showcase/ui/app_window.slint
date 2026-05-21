@@ -8,6 +8,7 @@
 // `slintcn add …` invocation in build.rs.
 
 import { Tokens, Theme, ThemeMode }             from "slintcn/theme/tokens.slint";
+import { Palette }                              from "slintcn/theme/palette.slint";
 import { Button, ButtonVariant, ButtonSize }    from "slintcn/components/button.slint";
 import { Card, CardVariant, CardPadding, CardRadius } from "slintcn/components/card.slint";
 import { Input }                                from "slintcn/components/input.slint";
@@ -162,7 +163,7 @@ export component AppWindow inherits Window {
                         font-weight: Tokens.typography-weight-semibold;
                     }
                     Badge {
-                        text: "v0.15";
+                        text: "v0.16";
                         variant: BadgeVariant.secondary;
                         size: BadgeSize.sm;
                     }
@@ -236,6 +237,11 @@ export component AppWindow inherits Window {
                     label: "Blocks";
                     active: root.active-section == 15;
                     clicked => { root.active-section = 15; }
+                }
+                NavItem {
+                    label: "Colors";
+                    active: root.active-section == 16;
+                    clicked => { root.active-section = 16; }
                 }
 
                 Rectangle { height: 12px; background: transparent; }
@@ -357,7 +363,7 @@ export component AppWindow inherits Window {
                             spacing: 8px;
                             alignment: start;
                             Label { text: "Sign up for the beta"; variant: LabelVariant.default; }
-                            Badge { text: "v0.15"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
+                            Badge { text: "v0.16"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
                         }
 
                         VerticalLayout {
@@ -1341,6 +1347,77 @@ export component AppWindow inherits Window {
 
                 SettingsBlock {
                     save => { ToastQueue.show("Settings saved", ToastVariant.success); }
+                }
+            }
+
+            // (16) Colors — palette reference + base-color note
+            if root.active-section == 16: VerticalLayout {
+                spacing: Tokens.spacing-lg;
+                alignment: start;
+
+                SectionHeading {
+                    title: "Colors";
+                    subtitle: "Neutral ramp + accents. Switch hue at init: slintcn init --base-color zinc / slate / stone.";
+                }
+
+                Label { text: "Neutral scale"; variant: LabelVariant.muted; }
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    for sw in [
+                        { label: "50",  c: Palette.neutral-50 },
+                        { label: "100", c: Palette.neutral-100 },
+                        { label: "200", c: Palette.neutral-200 },
+                        { label: "300", c: Palette.neutral-300 },
+                        { label: "400", c: Palette.neutral-400 },
+                        { label: "500", c: Palette.neutral-500 },
+                        { label: "600", c: Palette.neutral-600 },
+                        { label: "700", c: Palette.neutral-700 },
+                        { label: "800", c: Palette.neutral-800 },
+                        { label: "900", c: Palette.neutral-900 },
+                        { label: "950", c: Palette.neutral-950 },
+                    ]: VerticalLayout {
+                        spacing: 4px;
+                        Rectangle {
+                            width: 56px;
+                            height: 48px;
+                            background: sw.c;
+                            border-radius: Tokens.radius-md;
+                            border-width: 1px;
+                            border-color: Tokens.color-border-hairline;
+                        }
+                        Text {
+                            text: sw.label;
+                            color: Tokens.color-muted-foreground;
+                            font-size: Tokens.typography-label-size;
+                            horizontal-alignment: center;
+                        }
+                    }
+                }
+
+                Label { text: "Accents"; variant: LabelVariant.muted; }
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    for sw in [
+                        { label: "destructive", c: Tokens.color-destructive },
+                        { label: "affirm", c: Tokens.color-affirm },
+                        { label: "primary", c: Tokens.color-primary },
+                    ]: VerticalLayout {
+                        spacing: 4px;
+                        Rectangle {
+                            width: 96px;
+                            height: 48px;
+                            background: sw.c;
+                            border-radius: Tokens.radius-md;
+                        }
+                        Text {
+                            text: sw.label;
+                            color: Tokens.color-muted-foreground;
+                            font-size: Tokens.typography-label-size;
+                            horizontal-alignment: center;
+                        }
+                    }
                 }
             }
         }

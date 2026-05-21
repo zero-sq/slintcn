@@ -1,6 +1,27 @@
 # slintcn roadmap
 
-## v0.13 — web-parity P1/P2 (current)
+## v0.14 — distribution backbone (current)
+
+shadcn.com isn't a component library — it's "a distribution system for code."
+This wave brings slintcn's ecosystem up to that model.
+
+- [x] **Registry metadata** — every item gains `type` (registry:ui/theme/lib),
+      `title`, `description`, `category`; `schema/registry.schema.json` documents
+      the shape; a shape test guards it.
+- [x] **CLI `list`** — catalog grouped by category (`--json` for machines).
+- [x] **CLI `view <name>`** — metadata + resolved install order + files
+      (`--files` prints source).
+- [x] **CLI `build`** — emit a static registry: `registry.json` index +
+      `r/<name>.json` items with source inlined as `content` (shadcn's resolved
+      shape). Dogfooded in the Pages deploy → served at `/r/`.
+- [x] **Remote install** — `slintcn add <https-url>` and `@ns/name` (via
+      `slintcn.json` `registries`); `registryDependencies` resolve recursively;
+      reuses the local import-rewriting. Verified with a real HTTP round-trip.
+- [x] **Config** — `slintcn.json` gains `baseColor` + `registries`.
+- [x] **npm-ready** — `files` ships `schema`; `prepublishOnly` runs tests;
+      `npm login && npm publish` is the only operator step left.
+
+## v0.13 — web-parity P1/P2
 
 Closes the remaining audit gaps — the interaction-heavy ones. 34 → 37.
 

@@ -1,6 +1,5 @@
 # slintcn
 
-[![CI](https://github.com/stevekwon211/slintcn/actions/workflows/ci.yml/badge.svg)](https://github.com/stevekwon211/slintcn/actions/workflows/ci.yml)
 [![Pages](https://github.com/stevekwon211/slintcn/actions/workflows/pages.yml/badge.svg)](https://github.com/stevekwon211/slintcn/actions/workflows/pages.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-white.svg)](LICENSE)
 
@@ -27,8 +26,12 @@ you copy into your repo and customize.
 # Run the visual showcase
 cd examples/showcase && cargo run
 
-# Install components into your Slint project
+# Install components into your Slint project (once published to npm)
 cd your-app
+npx slintcn@latest init
+npx slintcn@latest add button card input dialog
+
+# …or from a local checkout today (pre-publish):
 node /path/to/slintcn/bin/slintcn.mjs init
 node /path/to/slintcn/bin/slintcn.mjs add button card input dialog
 ```
@@ -54,6 +57,8 @@ Files land in `ui/slintcn/` — **you own them**. Change colors in
 | **v0.11** | **Breadth batch B** — Breadcrumb, Pagination, Table, Slider (30 components) | ✅ |
 | **v0.12** | **Web-parity P0** — Text typography + game/HUD trio (Keycap, HudPill, SlotTile) + variant axes (Card padding/radius, Badge ghost/link, Tabs line) (34 components) | ✅ |
 | **v0.13** | **Web-parity P1/P2** — ScrollArea (Flickable + custom scrollbar), Popover, ContextMenu (right-click) (37 components) | ✅ |
+| **v0.14** | **Distribution backbone** — registry metadata (type/title/category), CLI `list`/`view`/`build`, remote-URL + namespaced install, npm/HTTP-ready | ✅ |
+| **v0.15** | Blocks — Sign-in/Settings/Dashboard + login/pricing/sidebar as installable `registry:block` items | upcoming |
 | **v1.0** | Game HUD registry expansion — hotbar, reticle, full keycap hints | later |
 
 SaaS-first is a **wedge**, not a ceiling. Once tokens + motion + hover semantics
@@ -86,6 +91,39 @@ my-dialog := Dialog {
 
 Variants and sizes are **typed enums** — a typo fails to compile rather than
 silently falling through to the default styling.
+
+## CLI & distribution
+
+slintcn isn't a library you depend on — it's a **distribution system for
+copy-paste Slint code** (the shadcn model). The CLI:
+
+```bash
+slintcn init                       # create slintcn.json + install theme tokens
+slintcn add button card input      # copy components + their deps (import-rewritten)
+slintcn list                       # browse the catalog, grouped by category
+slintcn view dialog [--files]      # an item's metadata, install order, and source
+slintcn build -o dist/registry     # emit a static registry (registry.json + r/*.json)
+```
+
+**Config — `slintcn.json`** (created by `init`): `style` (which registry),
+`baseColor`, `outDir`/`themeDir`/`componentsDir` (where files land — fully
+relocatable, imports are rewritten to match), and `registries` (namespace → URL).
+
+**Remote / custom registries.** `slintcn build` emits a static registry —
+a `registry.json` index plus `r/<name>.json` files with each component's
+source inlined. Host that anywhere and install from it:
+
+```bash
+slintcn add https://stevekwon211.github.io/slintcn/r/button.json   # direct URL
+slintcn add @acme/button                                           # via registries config
+```
+
+`registryDependencies` (e.g. a component needing `theme`) resolve recursively
+against the same registry. The official registry is served at
+`https://stevekwon211.github.io/slintcn/r/`.
+
+> **Maintainers:** publish to npm with `npm login && npm publish` (the package
+> ships `bin`, `registry`, `templates`, `schema`; `prepublishOnly` runs tests).
 
 ## Components (default registry)
 
@@ -228,9 +266,8 @@ each showcase section to `docs/img/snapshots/section-<n>-<name>.png` via Slint's
 SoftwareRenderer (no display server required); per-section baselines live in
 the repo for visual-regression diffs.
 
-[![CI](https://github.com/stevekwon211/slintcn/actions/workflows/ci.yml/badge.svg)](https://github.com/stevekwon211/slintcn/actions/workflows/ci.yml)
-GitHub Actions runs `make verify` + `make snapshot` on every push/PR and fails
-the build if a snapshot drifts from its committed baseline.
+Run `make verify` (tests + build + clippy) and `make snapshot` locally before
+committing — these are the quality gates (no CI workflow).
 
 ## Toast Rust glue (required for Toaster to function)
 

@@ -27,3 +27,6 @@ web/pkg/
 web/r/
 web/registry.json
 dist/
+
+# npm auth token — never commit
+.npmrc

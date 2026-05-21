@@ -60,19 +60,35 @@
 
     <script type="module">
         import init from './pkg/slintcn-showcase.js';
-        try {
-            await init();
-            // ui.run() returned (registers handlers, browser drives the loop).
-            // Hide the loader so Slint's canvas is visible.
+
+        function reveal() {
             document.getElementById('loader').classList.add('hidden');
-        } catch (err) {
-            const loader = document.getElementById('loader');
-            loader.innerHTML = `
-                <div class="brand">slintcn</div>
-                <div class="err">Failed to load WebAssembly bundle.\n${err && err.stack || err}</div>
-            `;
-            console.error('slintcn init failed:', err);
         }
+
+        function isWinitControlFlow(err) {
+            // winit hands control to the browser from EventLoop::run() by
+            // THROWING a JS exception that unwinds the Rust stack. It's not a
+            // failure — the app is already running behind it. The message is
+            // winit's own: "Using exceptions for control flow…".
+            const msg = (err && (err.message || err.toString())) || '';
+            return msg.includes('control flow') || msg.includes("isn't actually an error");
+        }
+
+        init()
+            .then(reveal)
+            .catch((err) => {
+                if (isWinitControlFlow(err)) {
+                    // Expected. The Slint canvas is live; just show it.
+                    reveal();
+                    return;
+                }
+                const loader = document.getElementById('loader');
+                loader.innerHTML = `
+                    <div class="brand">slintcn</div>
+                    <div class="err">Failed to load WebAssembly bundle.\n${(err && err.stack) || err}</div>
+                `;
+                console.error('slintcn init failed:', err);
+            });
     </script>
 </body>
 </html>

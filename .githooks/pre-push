@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# slintcn local quality gate — replaces the old CI workflow.
+# Runs `make verify` (node tests + cargo build + clippy -D warnings) before
+# every push and blocks the push on failure.
+#
+# Enable once per clone:
+#   git config core.hooksPath .githooks
+#
+# Skip a single push (e.g. WIP branch):  git push --no-verify
+set -euo pipefail
+
+echo "▶ pre-push: make verify"
+if ! make verify; then
+  echo "✗ make verify failed — push aborted. Fix, or 'git push --no-verify' to override." >&2
+  exit 1
+fi
+echo "✓ verify passed"

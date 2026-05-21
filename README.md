@@ -266,8 +266,11 @@ each showcase section to `docs/img/snapshots/section-<n>-<name>.png` via Slint's
 SoftwareRenderer (no display server required); per-section baselines live in
 the repo for visual-regression diffs.
 
-Run `make verify` (tests + build + clippy) and `make snapshot` locally before
-committing — these are the quality gates (no CI workflow).
+Quality gate is local (no CI workflow): a tracked **pre-push hook** runs
+`make verify` (node tests + cargo build + clippy `-D warnings`) and blocks the
+push on failure. Enable it once per clone with `git config core.hooksPath
+.githooks`; bypass a single push with `git push --no-verify`. Run `make
+snapshot` to refresh the visual-regression baselines.
 
 ## Toast Rust glue (required for Toaster to function)
 

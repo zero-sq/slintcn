@@ -25,7 +25,7 @@
   "homepage": "https://github.com/stevekwon211/slintcn#readme",
   "type": "module",
   "bin": {
-    "slintcn": "./bin/slintcn.mjs"
+    "slintcn": "bin/slintcn.mjs"
   },
   "scripts": {
     "test": "node --test bin/__test__/*.test.mjs",

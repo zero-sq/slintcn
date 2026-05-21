@@ -23,7 +23,8 @@ you copy into your repo and customize.
 | **v0.7** | Growable Rust-backed Toast queue + headless snapshot CI (SoftwareRenderer) | ✅ |
 | **v0.8** | PopupWindow Select (focus-based) + Toast fade-out + per-section snapshots + GitHub Actions | ✅ |
 | **v0.9** | **shadcn fidelity pass** — token recalibration (h-9, px-4, radius 10, spacing-xl/2xl), segmented Tabs, Dialog X-close + p-6 + click-absorb, all 18 primitives to measured shadcn specs | ✅ |
-| **v0.10** | Breadth — Accordion, Avatar, Textarea, Progress, Alert, Skeleton, Toggle, ToggleGroup | upcoming |
+| **v0.10** | **Breadth batch A** — Accordion, Avatar, Textarea, Progress, Alert, Skeleton, Toggle, ToggleGroup (26 components) | ✅ |
+| **v0.11** | Breadth batch B — Breadcrumb, Pagination, Table, Slider | upcoming |
 | **v1.0** | Game HUD registry — hotbar, reticle, keycap hints | later |
 
 SaaS-first is a **wedge**, not a ceiling. Once tokens + motion + hover semantics
@@ -78,8 +79,9 @@ silently falling through to the default styling.
 | Component | Variants | Sizes |
 |-----------|----------|-------|
 | **Button** | default · outline · secondary · ghost · link · destructive · glow · glass | xs · sm · default · lg · icon (× 4 sizes) |
-| **Card** | solid · glass · glass-interactive · raised | sm · default |
+| **Card** | solid · glass · glass-interactive · raised (+ CardHeader/Title/Description/Content/Footer) | sm · default |
 | **Input** | (focus ring · placeholder · password · auto-focus) | — |
+| **Textarea** | (multi-line, word-wrap) | — |
 | **Badge** | default · secondary · outline · destructive | sm · default |
 | **Label** | default · muted · required | — |
 | **Separator** | horizontal · vertical | — |
@@ -87,11 +89,22 @@ silently falling through to the default styling.
 ### Selection
 | Component | Variants | Notable props |
 |-----------|----------|---------------|
-| **Tabs** | (horizontal nav strip) | `items: [TabItem]`, `current: int`, `changed(int)` |
+| **Tabs** | segmented control (muted pill + raised active) | `items: [TabItem]`, `current: int`, `changed(int)` |
 | **Checkbox** | (Path-drawn check) | `checked`, `label`, `disabled`, `toggled(bool)` |
 | **Switch** | (sliding knob, 36 × 20 track) | `checked`, `label`, `disabled`, `toggled(bool)` |
-| **RadioGroup** | vertical · horizontal | `items: [RadioItem]`, `selected: int`, `orientation: RadioOrientation`, `changed(int)` |
-| **Select** | trigger + PopupWindow dropdown (close-on-click-outside) | `items: [SelectItem]`, `selected-index: int`, `highlighted-index: int`, `placeholder`, `changed(int)` |
+| **RadioGroup** | vertical · horizontal | `items: [RadioItem]`, `selected: int`, `orientation`, `changed(int)` |
+| **Select** | trigger + PopupWindow dropdown (close-on-click-outside) | `items: [SelectItem]`, `selected-index`, `highlighted-index`, `placeholder`, `changed(int)` |
+| **Toggle** | default · outline | `text`, `pressed`, `disabled`, `toggled(bool)` |
+| **ToggleGroup** | (single-select row) | `items: [ToggleGroupItem]`, `selected: int`, `changed(int)` |
+
+### Display & feedback
+| Component | Purpose | Notable props |
+|-----------|---------|---------------|
+| **Accordion** | single-open collapsible (animated, chevron swap) | `items: [AccordionItem]`, `open-index: int`, `changed(int)` |
+| **Avatar** | circular image + initials fallback | `source: image`, `fallback: string`, `size: length` |
+| **Alert** | bordered callout with icon | `title`, `description`, `icon` (LucidePaths.*), `variant: default/destructive` |
+| **Progress** | horizontal bar | `value: float` (0–100) |
+| **Skeleton** | pulsing placeholder | `radius`; size via width/height |
 
 ### Iconography & theming
 | Component | Purpose | Notable props |
@@ -166,7 +179,7 @@ closed modals don't block interaction with the underlying UI.
 registry/default/         # Source of truth (published with npm package)
   theme/palette.slint     #   raw color/alpha primitives
   theme/tokens.slint      #   semantic layer (components read this)
-  components/*.slint      #   18 primitives + popup-helpers + lucide-paths
+  components/*.slint      #   26 primitives + popup-helpers + lucide-paths
 examples/showcase/        # Runnable gallery (regenerated via `slintcn add`)
 bin/slintcn.mjs           # init + add CLI (transitive deps)
 bin/__test__/             # node:test suite — `make test`

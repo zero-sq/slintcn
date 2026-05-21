@@ -1,6 +1,24 @@
 # slintcn roadmap
 
-## v0.9 — shadcn fidelity pass (current)
+## v0.10 — breadth batch A (current)
+
+Eight static (no-popup) primitives, born on the v0.9-calibrated token system.
+18 → 26 components.
+
+- [x] **Accordion** — single-open collapsible; animated content height,
+      chevron swaps down/up, border-b dividers.
+- [x] **Avatar** — circular image with initials fallback; `size` diameter.
+- [x] **Textarea** — multi-line word-wrapping input with focus ring.
+- [x] **Progress** — horizontal bar, `value` 0–100, animated fill.
+- [x] **Alert** — bordered callout (icon + title + description),
+      default / destructive variants.
+- [x] **Skeleton** — muted pulsing placeholder (Timer + opacity).
+- [x] **Toggle** — two-state pressable button (default / outline).
+- [x] **ToggleGroup** — single-select row of toggles.
+- [x] Showcase: new **Feedback** (Alert/Progress/Skeleton) and **Display**
+      (Avatar/Accordion/Toggle/ToggleGroup) sections; Textarea added to Form.
+
+## v0.9 — shadcn fidelity pass
 
 First real visual/UX feedback on the live demo drove a measured-from-shadcn
 recalibration (tokens were previously inspired by, not measured from, shadcn).

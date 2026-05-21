@@ -29,6 +29,14 @@ import { RadioGroup, RadioItem, RadioOrientation } from "slintcn/components/radi
 import { Select, SelectItem }                   from "slintcn/components/select.slint";
 import { Icon }                                 from "slintcn/components/icon.slint";
 import { LucidePaths }                          from "slintcn/components/lucide-paths.slint";
+import { Progress }                             from "slintcn/components/progress.slint";
+import { Skeleton }                             from "slintcn/components/skeleton.slint";
+import { Avatar }                               from "slintcn/components/avatar.slint";
+import { Alert, AlertVariant }                  from "slintcn/components/alert.slint";
+import { Textarea }                             from "slintcn/components/textarea.slint";
+import { Toggle, ToggleVariant }                from "slintcn/components/toggle.slint";
+import { ToggleGroup, ToggleGroupItem }         from "slintcn/components/toggle-group.slint";
+import { Accordion, AccordionItem }             from "slintcn/components/accordion.slint";
 
 // Sidebar nav item — local helper, not part of the registry.
 component NavItem inherits Rectangle {
@@ -104,6 +112,9 @@ export component AppWindow inherits Window {
     in-out property <bool> setting-notifications: true;
     in-out property <bool> setting-marketing: false;
     in-out property <bool> setting-dark-mode: true;
+    in-out property <int>  accordion-open: 0;
+    in-out property <int>  align-toggle: 1;
+    in-out property <bool> bold-toggle: true;
 
     HorizontalLayout {
         padding: Tokens.spacing-xl;
@@ -132,7 +143,7 @@ export component AppWindow inherits Window {
                         font-weight: Tokens.typography-weight-semibold;
                     }
                     Badge {
-                        text: "v0.9";
+                        text: "v0.10";
                         variant: BadgeVariant.secondary;
                         size: BadgeSize.sm;
                     }
@@ -166,6 +177,16 @@ export component AppWindow inherits Window {
                     label: "Selection";
                     active: root.active-section == 7;
                     clicked => { root.active-section = 7; }
+                }
+                NavItem {
+                    label: "Feedback";
+                    active: root.active-section == 8;
+                    clicked => { root.active-section = 8; }
+                }
+                NavItem {
+                    label: "Display";
+                    active: root.active-section == 9;
+                    clicked => { root.active-section = 9; }
                 }
 
                 Rectangle { height: 12px; background: transparent; }
@@ -277,7 +298,7 @@ export component AppWindow inherits Window {
                 Card {
                     variant: CardVariant.glass;
                     width: 100%;
-                    height: 320px;
+                    height: 440px;
 
                     VerticalLayout {
                         padding: parent.padding-l;
@@ -287,7 +308,7 @@ export component AppWindow inherits Window {
                             spacing: 8px;
                             alignment: start;
                             Label { text: "Sign up for the beta"; variant: LabelVariant.default; }
-                            Badge { text: "v0.9"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
+                            Badge { text: "v0.10"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
                         }
 
                         VerticalLayout {
@@ -299,6 +320,11 @@ export component AppWindow inherits Window {
                             spacing: 8px;
                             Label { text: "Password"; variant: LabelVariant.required; }
                             Input { width: 100%; placeholder: "••••••••"; password: true; }
+                        }
+                        VerticalLayout {
+                            spacing: 8px;
+                            Label { text: "Bio"; }
+                            Textarea { width: 100%; placeholder: "Tell us about yourself…"; }
                         }
 
                         Separator { orientation: SeparatorOrientation.horizontal; }
@@ -894,6 +920,93 @@ export component AppWindow inherits Window {
                             Icon { commands: LucidePaths.minus;          tint: Tokens.color-foreground; size: 20px; }
                             Icon { commands: LucidePaths.arrow-right;    tint: Tokens.color-foreground; size: 20px; }
                             Icon { commands: LucidePaths.arrow-left;     tint: Tokens.color-destructive; size: 20px; }
+                        }
+                    }
+                }
+            }
+
+            // (8) Feedback — Alert, Progress, Skeleton
+            if root.active-section == 8: VerticalLayout {
+                spacing: Tokens.spacing-lg;
+                alignment: start;
+
+                SectionHeading {
+                    title: "Feedback";
+                    subtitle: "Alert, Progress, and Skeleton — status and loading states.";
+                }
+
+                Alert {
+                    width: 100%;
+                    icon: LucidePaths.check;
+                    title: "Deployed successfully";
+                    description: "Your changes are live on production.";
+                }
+                Alert {
+                    width: 100%;
+                    variant: AlertVariant.destructive;
+                    icon: LucidePaths.x-mark;
+                    title: "Build failed";
+                    description: "3 type errors in engine-mount.tsx. Check the logs.";
+                }
+
+                Label { text: "Progress"; variant: LabelVariant.muted; }
+                Progress { width: 100%; value: 28; }
+                Progress { width: 100%; value: 64; }
+
+                Label { text: "Skeleton (loading)"; variant: LabelVariant.muted; }
+                VerticalLayout {
+                    spacing: 8px;
+                    Skeleton { width: 60%; height: 16px; }
+                    Skeleton { width: 90%; height: 16px; }
+                    Skeleton { width: 75%; height: 16px; }
+                }
+            }
+
+            // (9) Display — Avatar, Accordion, Toggle, ToggleGroup
+            if root.active-section == 9: VerticalLayout {
+                spacing: Tokens.spacing-lg;
+                alignment: start;
+
+                SectionHeading {
+                    title: "Display";
+                    subtitle: "Avatar, Accordion, Toggle, and ToggleGroup.";
+                }
+
+                Label { text: "Avatars"; variant: LabelVariant.muted; }
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: start;
+                    Avatar { fallback: "SK"; size: 32px; }
+                    Avatar { fallback: "AB"; size: 40px; }
+                    Avatar { fallback: "CD"; size: 56px; }
+                }
+
+                Label { text: "Toggles"; variant: LabelVariant.muted; }
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: start;
+                    Toggle { text: "Bold"; pressed <=> root.bold-toggle; }
+                    Toggle { text: "Italic"; variant: ToggleVariant.outline; }
+                    ToggleGroup {
+                        items: [{ label: "Left" }, { label: "Center" }, { label: "Right" }];
+                        selected <=> root.align-toggle;
+                    }
+                }
+
+                Label { text: "Accordion"; variant: LabelVariant.muted; }
+                Card {
+                    variant: CardVariant.solid;
+                    width: 100%;
+                    height: 260px;
+                    VerticalLayout {
+                        padding: parent.padding-l;
+                        Accordion {
+                            open-index <=> root.accordion-open;
+                            items: [
+                                { title: "Is it accessible?", content: "Yes. Enter / Space toggle, arrow keys navigate where applicable." },
+                                { title: "Is it styled?", content: "It uses the slintcn token system — dark glass by default, light via Theme.mode." },
+                                { title: "Is it animated?", content: "Content height animates on expand/collapse using the motion-base duration." },
+                            ];
                         }
                     }
                 }

@@ -37,7 +37,7 @@ impl slint::platform::Platform for SnapshotPlatform {
 const WIDTH: u32 = 1100;
 const HEIGHT: u32 = 760;
 
-const SECTION_NAMES: [&str; 8] = [
+const SECTION_NAMES: [&str; 10] = [
     "buttons",
     "form",
     "overlays",
@@ -46,6 +46,8 @@ const SECTION_NAMES: [&str; 8] = [
     "settings",
     "dashboard",
     "selection",
+    "feedback",
+    "display",
 ];
 
 fn main() {

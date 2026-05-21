@@ -53,6 +53,13 @@ jobs:
             --out-dir ../../web/pkg \
             --out-name slintcn-showcase
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build static registry (served at /r/<name>.json)
+        run: node bin/slintcn.mjs build -o web/r
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

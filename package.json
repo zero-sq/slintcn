@@ -1,6 +1,6 @@
 {
   "name": "slintcn",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Beautiful copy-paste Slint components — shadcn for native UI",
   "keywords": [
     "slint",
@@ -28,12 +28,15 @@
     "slintcn": "./bin/slintcn.mjs"
   },
   "scripts": {
-    "test": "node --test bin/__test__/*.test.mjs"
+    "test": "node --test bin/__test__/*.test.mjs",
+    "build": "node bin/slintcn.mjs build -o dist/registry",
+    "prepublishOnly": "npm test"
   },
   "files": [
     "bin",
     "registry",
-    "templates"
+    "templates",
+    "schema"
   ],
   "engines": {
     "node": ">=20"

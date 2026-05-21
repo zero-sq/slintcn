@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://slintcn.dev/schema/registry.schema.json",
+  "title": "slintcn registry",
+  "description": "A slintcn registry — a metadata-rich catalog of copy-paste Slint items.",
+  "type": "object",
+  "required": ["name", "theme", "components"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": { "type": "string", "description": "Registry identifier (matches slintcn.json `style`)." },
+    "homepage": { "type": "string" },
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "slintVersion": { "type": "string", "description": "Minimum Slint version constraint." },
+    "theme": { "$ref": "#/definitions/item" },
+    "components": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/item" }
+    }
+  },
+  "definitions": {
+    "item": {
+      "type": "object",
+      "required": ["type", "title", "description", "category", "files"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["registry:ui", "registry:theme", "registry:lib", "registry:block"],
+          "description": "Item kind. ui = component, theme = tokens, lib = internal helper, block = composed template."
+        },
+        "title": { "type": "string", "description": "Human-readable display name." },
+        "description": { "type": "string", "description": "One-line summary." },
+        "category": { "type": "string", "description": "Grouping for the catalog (form, overlay, hud, …)." },
+        "files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Registry-relative .slint paths to copy (theme/* or components/*)."
+        },
+        "requires": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Other item names (or 'theme') installed transitively before this one."
+        }
+      }
+    }
+  }
+}

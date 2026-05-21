@@ -70,12 +70,12 @@ component NavItem inherits Rectangle {
 component SectionHeading inherits VerticalLayout {
     in property <string> title;
     in property <string> subtitle;
-    spacing: 4px;
+    spacing: 6px;
 
     Text {
         text: root.title;
         color: Tokens.color-foreground;
-        font-size: 24px;
+        font-size: Tokens.typography-h1-size;
         font-weight: Tokens.typography-weight-semibold;
     }
     if root.subtitle != "": Text {
@@ -106,8 +106,8 @@ export component AppWindow inherits Window {
     in-out property <bool> setting-dark-mode: true;
 
     HorizontalLayout {
-        padding: 24px;
-        spacing: 24px;
+        padding: Tokens.spacing-xl;
+        spacing: Tokens.spacing-xl;
 
         // ─── Sidebar ─────────────────────────────────────────────────
         Rectangle {
@@ -128,11 +128,11 @@ export component AppWindow inherits Window {
                     Text {
                         text: "slintcn";
                         color: Tokens.color-foreground;
-                        font-size: 18px;
+                        font-size: Tokens.typography-title-size;
                         font-weight: Tokens.typography-weight-semibold;
                     }
                     Badge {
-                        text: "v0.8";
+                        text: "v0.9";
                         variant: BadgeVariant.secondary;
                         size: BadgeSize.sm;
                     }
@@ -287,7 +287,7 @@ export component AppWindow inherits Window {
                             spacing: 8px;
                             alignment: start;
                             Label { text: "Sign up for the beta"; variant: LabelVariant.default; }
-                            Badge { text: "v0.8"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
+                            Badge { text: "v0.9"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
                         }
 
                         VerticalLayout {
@@ -304,7 +304,7 @@ export component AppWindow inherits Window {
                         Separator { orientation: SeparatorOrientation.horizontal; }
 
                         HorizontalLayout {
-                            spacing: 24px;
+                            spacing: Tokens.spacing-xl;
                             alignment: start;
                             Checkbox {
                                 label: "Email me product updates";
@@ -387,13 +387,18 @@ export component AppWindow inherits Window {
                     subtitle: "Visual navigation strip. Consumer renders content per current index.";
                 }
 
-                Tabs {
-                    items: [
-                        { label: "Overview" },
-                        { label: "Activity" },
-                        { label: "Notifications" },
-                    ];
-                    current <=> root.tabs-demo;
+                // Wrap in alignment:start so the segmented strip sizes to its
+                // content instead of stretching full-width.
+                HorizontalLayout {
+                    alignment: start;
+                    Tabs {
+                        items: [
+                            { label: "Overview" },
+                            { label: "Activity" },
+                            { label: "Notifications" },
+                        ];
+                        current <=> root.tabs-demo;
+                    }
                 }
 
                 Card {
@@ -538,13 +543,16 @@ export component AppWindow inherits Window {
                     subtitle: "Tabs + Inputs + Switches composed into a realistic preferences surface.";
                 }
 
-                Tabs {
-                    items: [
-                        { label: "Account" },
-                        { label: "Notifications" },
-                        { label: "Appearance" },
-                    ];
-                    current <=> root.settings-tab;
+                HorizontalLayout {
+                    alignment: start;
+                    Tabs {
+                        items: [
+                            { label: "Account" },
+                            { label: "Notifications" },
+                            { label: "Appearance" },
+                        ];
+                        current <=> root.settings-tab;
+                    }
                 }
 
                 Card {
@@ -804,7 +812,7 @@ export component AppWindow inherits Window {
                         Label { text: "Pick a plan"; variant: LabelVariant.default; }
 
                         HorizontalLayout {
-                            spacing: 32px;
+                            spacing: Tokens.spacing-2xl;
                             alignment: start;
 
                             VerticalLayout {

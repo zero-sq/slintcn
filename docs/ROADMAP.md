@@ -1,5 +1,30 @@
 # slintcn roadmap
 
+## v0.9 — shadcn fidelity pass (current)
+
+First real visual/UX feedback on the live demo drove a measured-from-shadcn
+recalibration (tokens were previously inspired by, not measured from, shadcn).
+
+- [x] **Token recalibration**: button h-9 (36px), px-4 padding, Input h-9,
+      radius scale to shadcn's `--radius:10px` (sm6/md8/lg10/xl16), new
+      `spacing-xl(24)` / `spacing-2xl(32)`, heading typography tokens
+      (text-lg/xl/h1), smoother `cubic-bezier(0.4,0,0.2,1)` motion, named
+      `color-accent` + translucent `color-ring-muted` (ring/50 at 3px).
+- [x] **Tabs** rebuilt as the shadcn-default **segmented control** —
+      muted pill container, active trigger lifts onto bg-background + shadow.
+- [x] **Dialog/AlertDialog/Sheet** to shadcn chrome — p-6 padding, rounded-lg,
+      Dialog X-close button top-right, opacity-fade entrance. Panel TouchArea
+      absorbs inside-clicks so they don't fall through to the Scrim
+      (fixes "clicking inside the dialog closes it").
+- [x] **Card** anatomy — p-6 padding, CardHeader/CardTitle/CardDescription/
+      CardContent/CardFooter composition helpers.
+- [x] **Button/Input/Checkbox/Switch/RadioGroup/Select/Tooltip/Badge/Label**
+      each retuned to measured specs (Select trigger h-9, Tooltip inverted
+      bg-primary, Badge rounded-md, Label text-sm, checkbox rounded-[4px]).
+- [x] **Showcase float fixes** — token-driven spacing (no hardcoded 24/32),
+      segmented Tabs wrapped to content width, SectionHeading breathing room,
+      v0.9 badges.
+
 ## v0.1 — prove "not ugly"
 
 - [x] `Tokens` dark glass theme

@@ -22,7 +22,8 @@ you copy into your repo and customize.
 | **v0.6** | PopupWindow-based Tooltip (escapes parent bounds) + font embedding guide | ✅ |
 | **v0.7** | Growable Rust-backed Toast queue + headless snapshot CI (SoftwareRenderer) | ✅ |
 | **v0.8** | PopupWindow Select (focus-based) + Toast fade-out + per-section snapshots + GitHub Actions | ✅ |
-| **v0.9** | npm publish, generalized Sheet/Dialog focus-trap API, perceptual-diff in CI | upcoming |
+| **v0.9** | **shadcn fidelity pass** — token recalibration (h-9, px-4, radius 10, spacing-xl/2xl), segmented Tabs, Dialog X-close + p-6 + click-absorb, all 18 primitives to measured shadcn specs | ✅ |
+| **v0.10** | Breadth — Accordion, Avatar, Textarea, Progress, Alert, Skeleton, Toggle, ToggleGroup | upcoming |
 | **v1.0** | Game HUD registry — hotbar, reticle, keycap hints | later |
 
 SaaS-first is a **wedge**, not a ceiling. Once tokens + motion + hover semantics

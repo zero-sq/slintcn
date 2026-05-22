@@ -1,0 +1,113 @@
+import { Tokens } from "../theme/tokens.slint";
+import { Input } from "input.slint";
+import { Icon } from "icon.slint";
+import { LucidePaths } from "lucide-paths.slint";
+
+// Searchable Select — click the trigger to open, type into the search field,
+// Enter selects the highlighted row. The popup exposes a two-way `query`
+// property; v1 leaves the actual filtering to the consumer (bind `items` to
+// a query-derived list in your model). Click any row to select it.
+export struct ComboboxItem { label: string, value: string }
+
+export component Combobox inherits Rectangle {
+    // Options shown in the popup; `value` is yours to use, slintcn only reads `label`.
+    in property <[ComboboxItem]> items;
+    // Two-way; index of the chosen item in `items`, or -1 for no selection.
+    in-out property <int> selected-index: -1;
+    // Two-way; current text in the search field. Reset to "" to clear the filter.
+    in-out property <string> query;
+    // Row highlighted by Enter; consumers rarely set this directly.
+    in-out property <int> highlighted-index: 0;
+    // Hint shown in the search field when empty.
+    in property <string> placeholder: "Search…";
+    // Pixel width of the popup panel.
+    in property <length> content-width: 320px;
+    // Fired with the chosen item's index when selected.
+    callback changed(int);
+
+    background: transparent;
+    // Expose the trigger's size so a parent layout allocates real space.
+    preferred-width:  trigger.preferred-width;
+    preferred-height: trigger.preferred-height;
+
+    trigger := HorizontalLayout { @children }
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { popup.show(); }
+    }
+
+    popup := PopupWindow {
+        x: 0;
+        y: root.height + 6px;
+        width: root.content-width;
+        close-policy: close-on-click-outside;
+
+        Rectangle {
+            background: Tokens.color-card;
+            border-color: Tokens.color-border-hairline;
+            border-width: 1px;
+            border-radius: Tokens.radius-md;
+            drop-shadow-blur:     Tokens.shadow-e2-blur;
+            drop-shadow-offset-y: Tokens.shadow-e2-offset-y;
+            drop-shadow-color:    Tokens.shadow-e2-color;
+            height: body.preferred-height;
+            forward-focus: search;
+
+            body := VerticalLayout {
+                padding: 6px;
+                spacing: 4px;
+
+                // Search field — `accepted` (Enter) selects the highlighted row.
+                search := Input {
+                    placeholder: root.placeholder;
+                    text <=> root.query;
+                    auto-focus: true;
+                    accepted(_) => {
+                        if (root.items.length > 0) {
+                            root.selected-index = root.highlighted-index;
+                            root.changed(root.highlighted-index);
+                            popup.close();
+                        }
+                    }
+                    edited(_) => { root.highlighted-index = 0; }
+                }
+
+                // Rows — derive `items` from `query` in the consumer; this
+                // component just shows whatever you pass.
+                for item[idx] in root.items: Rectangle {
+                    height: 30px;
+                    border-radius: Tokens.radius-sm;
+                    background: (it-touch.has-hover || idx == root.highlighted-index)
+                        ? Tokens.color-surface-1 : transparent;
+
+                    HorizontalLayout {
+                        padding-left: 10px;
+                        padding-right: 10px;
+                        Text {
+                            text: item.label;
+                            color: Tokens.color-foreground;
+                            font-size: Tokens.typography-body-size;
+                            vertical-alignment: center;
+                            horizontal-stretch: 1;
+                        }
+                        if idx == root.selected-index: Icon {
+                            commands: LucidePaths.check;
+                            size: 14px;
+                            tint: Tokens.color-foreground;
+                        }
+                    }
+
+                    it-touch := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => {
+                            root.selected-index = idx;
+                            root.changed(idx);
+                            popup.close();
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,6 +1,23 @@
 # slintcn roadmap
 
-## v0.24.2 — menu keyboard nav (current)
+## v0.25 — Command & Combobox (current)
+
+- [x] **Combobox** — Select-style trigger + popup with a search Input and an
+      item list. Click selects, Enter on the search Input selects the
+      highlighted row, the popup closes. The popup exposes `query` as a two-way
+      property; v1 keeps in-component filtering out (consumer derives `items`
+      from `query` in their model); v0.25.1 will add it inline once Slint's
+      string methods + `for x: if c: Element` syntax are validated.
+- [x] **Command** — ⌘K palette modal: backdrop + centered card with search
+      Input + flat item list. `selected(id)` fires the chosen item's id.
+      Mount as the LAST child of Window so the backdrop covers everything.
+      v1 limit: flat list (no groups yet) + no Up/Down arrow nav (search Input
+      swallows arrows); mouse + Enter on search field both work.
+
+45 components total. Each registered, a11y contract entry, usage validated by
+docs-accuracy (50/50), wired into PreviewHost for live docs previews.
+
+## v0.24.2 — menu keyboard nav
 
 Closing the v0.24 a11y gap. Mirroring Select's verified FocusScope pattern:
 
@@ -41,12 +58,6 @@ must keep working under adoption mode (external tokens/enums, routes).
 Lead with the menu family (we already have the overlay infra) and the app-shell
 primitives (they serve real adopters like the Zero desktop app). Charts are a
 heavy, separate R&D track; the Game/HUD layer is the long-term differentiator.
-
-### v0.25 — Command & Combobox (search / filter)
-- **Combobox** (searchable Select), **Command** (⌘K palette: groups + filter).
-- Why: ⌘K is table-stakes in modern tools; Combobox unblocks large option sets.
-- Reuse: Select trigger + PopupWindow + Input for the query; filter a VecModel.
-- Risk: result highlight + keyboard nav; the global ⌘K shortcut is consumer-side.
 
 ### v0.26 — Data Table
 - Sortable / filterable / paginated / row-selectable table (extends `Table`).

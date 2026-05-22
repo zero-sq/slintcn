@@ -1,0 +1,115 @@
+import { Tokens } from "../theme/tokens.slint";
+import { Input } from "input.slint";
+
+// Command palette (⌘K). Open it from your app shortcut; the search Input two-
+// way binds `query` so the consumer can derive a filtered `items` list. Enter
+// selects the highlighted row, click selects directly. v1 is a flat item list
+// (groups arrive in v0.25.1). Mount as the LAST child of Window so the
+// backdrop covers everything.
+export struct CommandItem { label: string, id: string, hint: string }
+
+export component Command inherits Rectangle {
+    // Two-way; consumer sets true to open, slintcn sets false on dismiss.
+    in-out property <bool> open: false;
+    // Items shown in the palette. Each `id` is what `selected` fires with.
+    in property <[CommandItem]> items;
+    // Two-way; current search text.
+    in-out property <string> query;
+    // Row that Enter selects; consumers rarely set this directly.
+    in-out property <int> highlighted-index: 0;
+    // Hint shown in the search field when empty.
+    in property <string> placeholder: "Type a command or search…";
+    // Fired with the chosen item's id when the user picks one.
+    callback selected(string);
+    // Fired when the palette closes for any reason.
+    callback dismissed();
+
+    // The consumer sets `width` and `height` (typically `parent.width` /
+    // `parent.height` so the backdrop covers the whole window).
+    visible: root.open;
+
+    // Backdrop — click anywhere outside the card to close.
+    backdrop := Rectangle {
+        background: #00000099;
+        TouchArea {
+            mouse-cursor: default;
+            clicked => {
+                root.open = false;
+                root.dismissed();
+            }
+        }
+    }
+
+    // Floating card, centered horizontally, ~20% from the top.
+    card := Rectangle {
+        x: (parent.width - 540px) / 2;
+        y: parent.height * 0.16;
+        width: 540px;
+        height: body.preferred-height;
+        background: Tokens.color-card;
+        border-color: Tokens.color-border-hairline;
+        border-width: 1px;
+        border-radius: Tokens.radius-lg;
+        drop-shadow-blur:     Tokens.shadow-e3-blur;
+        drop-shadow-offset-y: Tokens.shadow-e3-offset-y;
+        drop-shadow-color:    Tokens.shadow-e3-color;
+
+        // Absorb clicks so they don't bubble to the backdrop.
+        TouchArea { mouse-cursor: default; clicked => { } }
+
+        body := VerticalLayout {
+            padding: 8px;
+            spacing: 6px;
+
+            search := Input {
+                placeholder: root.placeholder;
+                text <=> root.query;
+                auto-focus: true;
+                accepted(_) => {
+                    if (root.items.length > 0
+                        && root.highlighted-index >= 0
+                        && root.highlighted-index < root.items.length) {
+                        root.selected(root.items[root.highlighted-index].id);
+                        root.open = false;
+                    }
+                }
+                edited(_) => { root.highlighted-index = 0; }
+            }
+
+            // Rows — derive `items` from `query` in the consumer; this
+            // component just shows whatever you pass.
+            for item[i] in root.items: Rectangle {
+                height: 38px;
+                border-radius: Tokens.radius-sm;
+                background: (it-touch.has-hover || i == root.highlighted-index)
+                    ? Tokens.color-surface-1 : transparent;
+
+                HorizontalLayout {
+                    padding-left: 12px;
+                    padding-right: 12px;
+                    Text {
+                        text: item.label;
+                        color: Tokens.color-foreground;
+                        font-size: Tokens.typography-body-size;
+                        vertical-alignment: center;
+                        horizontal-stretch: 1;
+                    }
+                    if item.hint != "": Text {
+                        text: item.hint;
+                        color: Tokens.color-muted-foreground;
+                        font-size: Tokens.typography-body-sm-size;
+                        vertical-alignment: center;
+                    }
+                }
+
+                it-touch := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => {
+                        root.selected(item.id);
+                        root.open = false;
+                    }
+                }
+            }
+        }
+    }
+}

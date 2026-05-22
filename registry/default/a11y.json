@@ -24,5 +24,7 @@
   "dropdown-menu":     { "focusable": true,  "keyboard": ["Arrow keys", "Enter"], "focusTrap": false, "escapeDismiss": true  },
   "menubar":           { "focusable": true,  "keyboard": ["Arrow keys", "Enter"], "focusTrap": false, "escapeDismiss": true  },
   "navigation-menu":   { "focusable": true,  "keyboard": ["Arrow keys", "Enter"], "focusTrap": false, "escapeDismiss": false },
-  "hover-card":        { "focusable": false, "keyboard": [],                 "focusTrap": false, "escapeDismiss": false }
+  "hover-card":        { "focusable": false, "keyboard": [],                 "focusTrap": false, "escapeDismiss": false },
+  "combobox":          { "focusable": true,  "keyboard": ["text entry", "Enter"], "focusTrap": false, "escapeDismiss": false },
+  "command":           { "focusable": true,  "keyboard": ["text entry", "Enter"], "focusTrap": false, "escapeDismiss": false }
 }

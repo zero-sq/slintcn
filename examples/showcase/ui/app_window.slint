@@ -57,6 +57,8 @@ import { DropdownMenu, DropdownMenuItem }       from "slintcn/components/dropdow
 import { HoverCard }                            from "slintcn/components/hover-card.slint";
 import { Menubar, MenubarMenu, MenubarItem }    from "slintcn/components/menubar.slint";
 import { NavigationMenu, NavigationItem }       from "slintcn/components/navigation-menu.slint";
+import { Combobox, ComboboxItem }               from "slintcn/components/combobox.slint";
+import { Command, CommandItem }                 from "slintcn/components/command.slint";
 import { SignIn }                               from "slintcn/blocks/sign-in.slint";
 import { Login }                                from "slintcn/blocks/login.slint";
 import { Pricing }                              from "slintcn/blocks/pricing.slint";
@@ -273,6 +275,28 @@ component PreviewHost inherits Rectangle {
                 items: [{ label: "Overview" }, { label: "Customers" }, { label: "Products" }, { label: "Settings" }];
                 active <=> root.p-int;
             }
+            if root.name == "combobox": Combobox {
+                items: [
+                    { label: "Apple",      value: "apple" },
+                    { label: "Banana",     value: "banana" },
+                    { label: "Blueberry",  value: "blueberry" },
+                    { label: "Cherry",     value: "cherry" },
+                    { label: "Grape",      value: "grape" },
+                ];
+                Button { variant: ButtonVariant.outline; text: "Pick a fruit"; }
+            }
+            if root.name == "command": Command {
+                width: 720px;
+                height: 460px;
+                open: true;
+                items: [
+                    { label: "New file",     id: "file.new",    hint: "⌘N" },
+                    { label: "Open file…",   id: "file.open",   hint: "⌘O" },
+                    { label: "Save",         id: "file.save",   hint: "⌘S" },
+                    { label: "Settings",     id: "app.settings", hint: "⌘," },
+                    { label: "Toggle theme", id: "app.theme",   hint: "" },
+                ];
+            }
 
             // blocks
             if root.name == "sign-in": SignIn { }
@@ -356,7 +380,7 @@ export component AppWindow inherits Window {
                         font-weight: Tokens.typography-weight-semibold;
                     }
                     Badge {
-                        text: "v0.24";
+                        text: "v0.25";
                         variant: BadgeVariant.secondary;
                         size: BadgeSize.sm;
                     }
@@ -564,7 +588,7 @@ export component AppWindow inherits Window {
                             spacing: 8px;
                             alignment: start;
                             Label { text: "Sign up for the beta"; variant: LabelVariant.default; }
-                            Badge { text: "v0.24"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
+                            Badge { text: "v0.25"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
                         }
 
                         VerticalLayout {

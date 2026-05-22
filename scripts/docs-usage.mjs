@@ -306,6 +306,36 @@ NavigationMenu {
     navigate(i) => { /* … */ }
 }`,
 
+  combobox: `import { Combobox, ComboboxItem } from "slintcn/components/combobox.slint";
+
+Combobox {
+    items: [
+        { label: "Apple",  value: "apple" },
+        { label: "Banana", value: "banana" },
+        { label: "Cherry", value: "cherry" },
+    ];
+    selected-index <=> picked;
+    query <=> query;
+    changed(i) => { /* … */ }
+    Button { text: "Pick a fruit"; }   // trigger = @children
+}`,
+
+  command: `import { Command, CommandItem } from "slintcn/components/command.slint";
+
+// Mount as the LAST child of Window so the backdrop covers everything.
+Command {
+    width: parent.width;
+    height: parent.height;
+    open <=> palette-open;
+    items: [
+        { label: "New file",   id: "file.new",   hint: "⌘N" },
+        { label: "Open file…", id: "file.open",  hint: "⌘O" },
+        { label: "Save",       id: "file.save",  hint: "⌘S" },
+    ];
+    query <=> query;
+    selected(id) => { /* dispatch by id */ }
+}`,
+
   // ── blocks ──
   "sign-in": `import { SignIn } from "slintcn/blocks/sign-in.slint";
 

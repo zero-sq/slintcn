@@ -58,6 +58,9 @@ import { Login }                                from "slintcn/blocks/login.slint
 import { Pricing }                              from "slintcn/blocks/pricing.slint";
 import { Dashboard as DashboardBlock }          from "slintcn/blocks/dashboard.slint";
 import { Settings as SettingsBlock }            from "slintcn/blocks/settings.slint";
+import { Team }                                 from "slintcn/blocks/team.slint";
+import { Profile }                              from "slintcn/blocks/profile.slint";
+import { Stats }                                from "slintcn/blocks/stats.slint";
 
 // Sidebar nav item — local helper, not part of the registry.
 component NavItem inherits Rectangle {
@@ -251,6 +254,9 @@ component PreviewHost inherits Rectangle {
             if root.name == "pricing": Pricing { }
             if root.name == "dashboard": Rectangle { width: 760px; DashboardBlock { } }
             if root.name == "settings": Rectangle { width: 620px; SettingsBlock { } }
+            if root.name == "team": Team { }
+            if root.name == "profile": Profile { }
+            if root.name == "stats": Rectangle { width: 760px; Stats { } }
         }
     }
 
@@ -324,7 +330,7 @@ export component AppWindow inherits Window {
                         font-weight: Tokens.typography-weight-semibold;
                     }
                     Badge {
-                        text: "v0.22";
+                        text: "v0.23";
                         variant: BadgeVariant.secondary;
                         size: BadgeSize.sm;
                     }
@@ -532,7 +538,7 @@ export component AppWindow inherits Window {
                             spacing: 8px;
                             alignment: start;
                             Label { text: "Sign up for the beta"; variant: LabelVariant.default; }
-                            Badge { text: "v0.22"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
+                            Badge { text: "v0.23"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
                         }
 
                         VerticalLayout {

@@ -1,0 +1,96 @@
+import { Tokens } from "../theme/tokens.slint";
+import { Card, CardVariant } from "../components/card.slint";
+import { Label, LabelVariant } from "../components/label.slint";
+import { Badge, BadgeVariant, BadgeSize } from "../components/badge.slint";
+import { Progress } from "../components/progress.slint";
+
+// Analytics-overview block — four metric cards over a "traffic by source"
+// breakdown drawn with Progress bars (slintcn has no chart primitive yet, so
+// bars stand in). Built from Card + Label + Badge + Progress.
+export struct StatMetric { label: string, value: string, delta: string, up: bool }
+export struct TrafficSource { label: string, percent: float, value: string }
+
+export component Stats inherits Rectangle {
+    in property <[StatMetric]> metrics: [
+        { label: "Revenue",      value: "$ 42,580", delta: "+12.4%", up: true },
+        { label: "Subscriptions", value: "2,340",   delta: "+8.1%",  up: true },
+        { label: "Active now",   value: "1,284",    delta: "+3.1%",  up: true },
+        { label: "Churn",        value: "1.8%",     delta: "−0.4%",  up: false },
+    ];
+    in property <[TrafficSource]> sources: [
+        { label: "Direct",   percent: 48, value: "12,480" },
+        { label: "Organic",  percent: 31, value: "8,060"  },
+        { label: "Referral", percent: 14, value: "3,640"  },
+        { label: "Social",   percent: 7,  value: "1,820"  },
+    ];
+
+    background: transparent;
+
+    VerticalLayout {
+        spacing: 16px;
+        alignment: start;
+
+        HorizontalLayout {
+            spacing: 16px;
+            for m in root.metrics: Card {
+                variant: CardVariant.raised;
+                width: 24%;
+                height: 116px;
+                VerticalLayout {
+                    padding: parent.padding-l;
+                    spacing: 6px;
+                    alignment: start;
+                    Label { text: m.label; variant: LabelVariant.muted; }
+                    Text {
+                        text: m.value;
+                        color: Tokens.color-foreground;
+                        font-size: 24px;
+                        font-weight: Tokens.typography-weight-semibold;
+                    }
+                    Badge {
+                        text: m.delta;
+                        variant: m.up ? BadgeVariant.default : BadgeVariant.destructive;
+                        size: BadgeSize.sm;
+                    }
+                }
+            }
+        }
+
+        Card {
+            variant: CardVariant.solid;
+            VerticalLayout {
+                padding: parent.padding-l;
+                spacing: Tokens.spacing-md;
+                Text {
+                    text: "Traffic by source";
+                    color: Tokens.color-foreground;
+                    font-size: Tokens.typography-title-size;
+                    font-weight: Tokens.typography-weight-semibold;
+                }
+                for s in root.sources: HorizontalLayout {
+                    spacing: 12px;
+                    VerticalLayout {
+                        width: 84px;
+                        alignment: center;
+                        Label { text: s.label; }
+                    }
+                    VerticalLayout {
+                        horizontal-stretch: 1;
+                        alignment: center;
+                        Progress { value: s.percent; }
+                    }
+                    VerticalLayout {
+                        width: 64px;
+                        alignment: center;
+                        Text {
+                            text: s.value;
+                            color: Tokens.color-muted-foreground;
+                            font-size: Tokens.typography-body-sm-size;
+                            horizontal-alignment: right;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

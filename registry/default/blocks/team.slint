@@ -1,0 +1,78 @@
+import { Tokens } from "../theme/tokens.slint";
+import { Card, CardVariant } from "../components/card.slint";
+import { Avatar } from "../components/avatar.slint";
+import { Label, LabelVariant } from "../components/label.slint";
+import { Badge, BadgeVariant, BadgeSize } from "../components/badge.slint";
+import { Button, ButtonVariant, ButtonSize } from "../components/button.slint";
+import { Separator, SeparatorOrientation } from "../components/separator.slint";
+
+// Team-members block — a card listing members (avatar + name/email + role)
+// with an Invite action. Built from Card + Avatar + Badge + Button. Replace
+// the inline `members` data and wire `invite()` / `manage(index)`.
+export struct TeamMember { name: string, email: string, role: string, initials: string }
+
+export component Team inherits Rectangle {
+    in property <[TeamMember]> members: [
+        { name: "Sofia Davis",     email: "sofia@acme.dev",    role: "Owner",  initials: "SD" },
+        { name: "Jackson Lee",     email: "jackson@acme.dev",  role: "Member", initials: "JL" },
+        { name: "Isabella Nguyen", email: "isabella@acme.dev", role: "Member", initials: "IN" },
+    ];
+    callback invite();
+    callback manage(int);
+
+    background: transparent;
+
+    Card {
+        variant: CardVariant.solid;
+        width: 560px;
+        VerticalLayout {
+            padding: parent.padding-l;
+            spacing: Tokens.spacing-lg;
+
+            HorizontalLayout {
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    spacing: 4px;
+                    Text {
+                        text: "Team members";
+                        color: Tokens.color-foreground;
+                        font-size: Tokens.typography-title-size;
+                        font-weight: Tokens.typography-weight-semibold;
+                    }
+                    Label { text: "Invite and manage your team."; variant: LabelVariant.muted; }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    Button { text: "Invite"; variant: ButtonVariant.outline; size: ButtonSize.sm; clicked => { root.invite(); } }
+                }
+            }
+
+            Separator { orientation: SeparatorOrientation.horizontal; }
+
+            for m[idx] in root.members: HorizontalLayout {
+                spacing: 12px;
+                VerticalLayout { alignment: center; Avatar { fallback: m.initials; size: 38px; } }
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    spacing: 2px;
+                    Text {
+                        text: m.name;
+                        color: Tokens.color-foreground;
+                        font-size: Tokens.typography-body-size;
+                        font-weight: Tokens.typography-weight-medium;
+                    }
+                    Text {
+                        text: m.email;
+                        color: Tokens.color-muted-foreground;
+                        font-size: Tokens.typography-body-sm-size;
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    Badge { text: m.role; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
+                }
+            }
+        }
+    }
+}

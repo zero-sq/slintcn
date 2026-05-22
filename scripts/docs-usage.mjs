@@ -306,4 +306,26 @@ Settings {
     email <=> email;
     save => { /* … */ }
 }`,
+
+  team: `import { Team, TeamMember } from "slintcn/blocks/team.slint";
+
+Team {
+    members: [{ name: "Sofia Davis", email: "sofia@acme.dev", role: "Owner", initials: "SD" }];
+    invite => { /* … */ }
+    manage(i) => { /* … */ }
+}`,
+
+  profile: `import { Profile } from "slintcn/blocks/profile.slint";
+
+Profile {
+    display-name <=> name;
+    email <=> email;
+    bio <=> bio;
+    save => { /* … */ }
+    cancel => { /* … */ }
+}`,
+
+  stats: `import { Stats, StatMetric, TrafficSource } from "slintcn/blocks/stats.slint";
+
+Stats { }   // edit the inline metrics + sources after install`,
 };

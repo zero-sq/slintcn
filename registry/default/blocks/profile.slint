@@ -1,0 +1,78 @@
+import { Tokens } from "../theme/tokens.slint";
+import { Card, CardVariant } from "../components/card.slint";
+import { Avatar } from "../components/avatar.slint";
+import { Input } from "../components/input.slint";
+import { Textarea } from "../components/textarea.slint";
+import { Label, LabelVariant } from "../components/label.slint";
+import { Button, ButtonVariant } from "../components/button.slint";
+import { Separator, SeparatorOrientation } from "../components/separator.slint";
+
+// Profile / account-settings block — avatar + name/email/bio fields with
+// Save / Cancel. Built from Card + Avatar + Input + Textarea + Button. Bind the
+// fields and handle `save()` / `cancel()`.
+export component Profile inherits Rectangle {
+    in-out property <string> display-name: "Sofia Davis";
+    in-out property <string> email: "sofia@acme.dev";
+    in-out property <string> bio: "Product designer. Building tools for makers.";
+    callback save();
+    callback cancel();
+
+    background: transparent;
+
+    Card {
+        variant: CardVariant.solid;
+        width: 480px;
+        VerticalLayout {
+            padding: parent.padding-l;
+            spacing: Tokens.spacing-lg;
+
+            VerticalLayout {
+                spacing: 4px;
+                Text {
+                    text: "Profile";
+                    color: Tokens.color-foreground;
+                    font-size: Tokens.typography-title-size;
+                    font-weight: Tokens.typography-weight-semibold;
+                }
+                Label { text: "How others see you across the app."; variant: LabelVariant.muted; }
+            }
+
+            HorizontalLayout {
+                spacing: 16px;
+                VerticalLayout { alignment: center; Avatar { fallback: "SD"; size: 56px; } }
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    spacing: 8px;
+                    Button { text: "Change avatar"; variant: ButtonVariant.outline; }
+                    Label { text: "JPG or PNG, up to 2 MB."; variant: LabelVariant.muted; }
+                }
+            }
+
+            Separator { orientation: SeparatorOrientation.horizontal; }
+
+            VerticalLayout {
+                spacing: 6px;
+                Label { text: "Name"; }
+                Input { placeholder: "Your name"; text <=> root.display-name; }
+            }
+            VerticalLayout {
+                spacing: 6px;
+                Label { text: "Email"; }
+                Input { placeholder: "you@example.com"; text <=> root.email; }
+            }
+            VerticalLayout {
+                spacing: 6px;
+                Label { text: "Bio"; }
+                Textarea { placeholder: "A short bio…"; text <=> root.bio; }
+            }
+
+            HorizontalLayout {
+                spacing: Tokens.spacing-sm;
+                VerticalLayout { horizontal-stretch: 1; }
+                Button { text: "Cancel"; variant: ButtonVariant.outline; clicked => { root.cancel(); } }
+                Button { text: "Save changes"; variant: ButtonVariant.default; clicked => { root.save(); } }
+            }
+        }
+    }
+}

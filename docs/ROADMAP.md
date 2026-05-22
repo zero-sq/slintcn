@@ -14,32 +14,32 @@ Lead with the menu family (we already have the overlay infra) and the app-shell
 primitives (they serve real adopters like the Zero desktop app). Charts are a
 heavy, separate R&D track; the Game/HUD layer is the long-term differentiator.
 
-### v0.23 — Menu family (overlay expansion)
+### v0.24 — Menu family (overlay expansion)
 - **Dropdown Menu, Menubar, Navigation Menu, Hover Card.**
 - Why: the highest-frequency missing primitives — every toolbar / profile menu.
 - Reuse: `PopupWindow` + the Popover/ContextMenu/Select patterns (close-on-
   click-outside, cursor/anchor positioning, arrow-key nav).
 - Risk: nested submenus (Menubar) need careful PopupWindow stacking + focus.
 
-### v0.24 — Command & Combobox (search / filter)
+### v0.25 — Command & Combobox (search / filter)
 - **Combobox** (searchable Select), **Command** (⌘K palette: groups + filter).
 - Why: ⌘K is table-stakes in modern tools; Combobox unblocks large option sets.
 - Reuse: Select trigger + PopupWindow + Input for the query; filter a VecModel.
 - Risk: result highlight + keyboard nav; the global ⌘K shortcut is consumer-side.
 
-### v0.25 — Data Table
+### v0.26 — Data Table
 - Sortable / filterable / paginated / row-selectable table (extends `Table`).
 - Why: the single biggest "complex" gap; most-requested.
 - Reuse: Table + Checkbox (select) + Pagination + Input (filter) + Button (sort).
 - Risk: column sizing + virtualized scroll for large data (ScrollArea). Own wave.
 
-### v0.26 — Date & Calendar
+### v0.27 — Date & Calendar
 - **Calendar** (month grid + keyboard), **Date Picker** (Calendar in a Popover),
   basic range select.
 - Why: forms / scheduling.
 - Risk: date math in Rust glue, locale / first-day-of-week, range selection.
 
-### v0.27 — App-shell primitives
+### v0.28 — App-shell primitives
 - **Sidebar** (collapsible app sidebar), **Resizable** (split panes), **Drawer**
   (sheet variant).
 - Why: makes slintcn viable for full desktop app shells — directly serves
@@ -47,7 +47,7 @@ heavy, separate R&D track; the Game/HUD layer is the long-term differentiator.
 - Reuse: Sheet (Drawer), ScrollArea, layout primitives; Resizable = TouchArea
   drag + width state.
 
-### v0.28 — Catalog round-out (small gaps)
+### v0.29 — Catalog round-out (small gaps)
 - Collapsible, Aspect Ratio, Input OTP, Spinner, Carousel, Button Group,
   Empty / Field / Item, Native Select, Kbd (alias Keycap).
 - Why: parity polish; each is small.
@@ -77,7 +77,22 @@ heavy, separate R&D track; the Game/HUD layer is the long-term differentiator.
 
 ---
 
-## v0.22.1 — responsive site + polish (current)
+## v0.23 — blocks expansion (current)
+
+shadcn's signature strength is **Blocks** — drop-in full screens. We had 5;
+ship three more, composed from existing components (no new primitives):
+
+- [x] **Team** — members list with avatars, roles, and an Invite action
+      (Card + Avatar + Badge + Button).
+- [x] **Profile** — account-settings form: avatar, name, email, bio, save/cancel
+      (Card + Avatar + Input + Textarea + Button).
+- [x] **Stats** — analytics overview: four metric cards + traffic-by-source
+      bars (Card + Label + Badge + Progress; bars stand in until charts ship).
+
+8 blocks total. Each registered + previewed in docs (`/docs/team`, `/profile`,
+`/stats`) + usage snippets verified by the docs-accuracy test.
+
+## v0.22.1 — responsive site + polish
 
 - [x] **Docs mobile nav** — off-canvas drawer (☰ → sidebar over a scrim; closes on
       scrim/Esc/select; body scroll lock). Restores component navigation on phones.

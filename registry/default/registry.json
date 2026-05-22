@@ -2,7 +2,7 @@
   "$schema": "https://slintcn.dev/schema/registry.schema.json",
   "name": "default",
   "homepage": "https://stevekwon211.github.io/slintcn",
-  "version": "0.22.1",
+  "version": "0.23.0",
   "description": "Dark glass theme — shadcn-adjacent primitives for Slint",
   "slintVersion": ">=1.16",
   "theme": {
@@ -380,6 +380,30 @@
       "category": "block",
       "files": ["blocks/settings.slint"],
       "requires": ["theme", "card", "tabs", "input", "label", "switch", "button"]
+    },
+    "team": {
+      "type": "registry:block",
+      "title": "Team",
+      "description": "Team-members list with avatars, roles, and an Invite action. Composed block.",
+      "category": "block",
+      "files": ["blocks/team.slint"],
+      "requires": ["theme", "card", "avatar", "label", "badge", "button", "separator"]
+    },
+    "profile": {
+      "type": "registry:block",
+      "title": "Profile",
+      "description": "Account form — avatar, name, email, bio, with Save / Cancel. Composed block.",
+      "category": "block",
+      "files": ["blocks/profile.slint"],
+      "requires": ["theme", "card", "avatar", "input", "textarea", "label", "button", "separator"]
+    },
+    "stats": {
+      "type": "registry:block",
+      "title": "Stats",
+      "description": "Analytics overview — metric cards + traffic-by-source bars. Composed block.",
+      "category": "block",
+      "files": ["blocks/stats.slint"],
+      "requires": ["theme", "card", "label", "badge", "progress"]
     }
   }
 }

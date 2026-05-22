@@ -1,6 +1,17 @@
 # slintcn roadmap
 
-## v0.28 — App-shell primitives (current)
+## v0.29 — catalog round-out (current)
+
+- [x] **Collapsible** — single show / hide section with chevron-flip trigger.
+      The body collapses via `max-height` (Slint forbids `@children` inside
+      `if`, so `visible` + height-collapse instead).
+- [x] **ButtonGroup** — visually-joined cluster of Buttons (zero-gap row).
+
+Spinner / InputOTP / Carousel / Kbd defer to v0.29.1 — each needs a small but
+distinct Slint-side check (animation-tick continuous rotation, per-digit
+Input chain, slide animation, alias).
+
+## v0.28 — App-shell primitives
 
 - [x] **Sidebar** — collapsible app sidebar; items with icons + active
       highlight, animated width on toggle. Drives the consumer's routing via
@@ -119,10 +130,10 @@ Lead with the menu family (we already have the overlay infra) and the app-shell
 primitives (they serve real adopters like the Zero desktop app). Charts are a
 heavy, separate R&D track; the Game/HUD layer is the long-term differentiator.
 
-### v0.29 — Catalog round-out (small gaps)
-- Collapsible, Aspect Ratio, Input OTP, Spinner, Carousel, Button Group,
-  Empty / Field / Item, Native Select, Kbd (alias Keycap).
-- Why: parity polish; each is small.
+### v0.29.1 — Catalog round-out leftovers
+- Spinner (rotation via `animation-tick()` — needs Slint validation), Input
+  OTP (per-digit Input chain), Carousel (slide math), Kbd (alias of Keycap).
+- Empty + AspectRatio already shipped in v0.28; Collapsible + ButtonGroup in v0.29.
 
 ### v0.30 — Charts (separate R&D track)
 - Area / Bar / Line / Pie.

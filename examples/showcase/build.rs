@@ -24,6 +24,7 @@ fn main() {
             "combobox", "command", "data-table",
             "calendar", "date-picker",
             "sidebar", "empty", "aspect-ratio",
+            "collapsible", "button-group",
             "sign-in", "login", "pricing", "dashboard", "settings",
             "team", "profile", "stats",
         ])

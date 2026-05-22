@@ -1,0 +1,17 @@
+import { Tokens } from "../theme/tokens.slint";
+
+// Visually-joined cluster of Buttons. Drop two or more `Button`s as
+// `@children`; the group lays them out in a single row with no gap. Each
+// Button keeps its own variant + rounded corners — `ButtonGroup` is layout
+// only, not a style override. Pair with `variant: ButtonVariant.outline` for
+// the classic "segmented action" look.
+export component ButtonGroup inherits Rectangle {
+    background: transparent;
+    preferred-width:  row.preferred-width;
+    preferred-height: row.preferred-height;
+
+    row := HorizontalLayout {
+        spacing: 0;
+        @children
+    }
+}

@@ -405,6 +405,25 @@ AspectRatio {
     Image { source: @image-url("hero.png"); image-fit: cover; }
 }`,
 
+  collapsible: `import { Collapsible } from "slintcn/components/collapsible.slint";
+
+Collapsible {
+    title: "Advanced settings";
+    open <=> show-advanced;
+    toggled(o) => { /* … */ }
+    // body content
+    Text { text: "Hidden by default; click the title to reveal."; }
+}`,
+
+  "button-group": `import { ButtonGroup } from "slintcn/components/button-group.slint";
+import { Button, ButtonVariant } from "slintcn/components/button.slint";
+
+ButtonGroup {
+    Button { variant: ButtonVariant.outline; text: "Day"; }
+    Button { variant: ButtonVariant.outline; text: "Week"; }
+    Button { variant: ButtonVariant.outline; text: "Month"; }
+}`,
+
   // ── blocks ──
   "sign-in": `import { SignIn } from "slintcn/blocks/sign-in.slint";
 

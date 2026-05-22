@@ -1,0 +1,77 @@
+import { Tokens } from "../theme/tokens.slint";
+import { Icon } from "icon.slint";
+import { LucidePaths } from "lucide-paths.slint";
+
+// Single show / hide section. Like Accordion but for a standalone block — the
+// trigger row toggles the visibility of `@children`. The chevron flips on
+// open. Useful for filter sections, optional settings, inline FAQ rows.
+export component Collapsible inherits Rectangle {
+    // Trigger label shown next to the chevron.
+    in property <string> title;
+    // Two-way; when true, `@children` are visible.
+    in-out property <bool> open: false;
+    // Fired with the new `open` value after a toggle click.
+    callback toggled(bool);
+
+    background: transparent;
+
+    VerticalLayout {
+        spacing: 0;
+
+        // Trigger row — click anywhere to toggle.
+        Rectangle {
+            height: 40px;
+            border-radius: Tokens.radius-sm;
+            background: trigger-touch.has-hover
+                ? Tokens.color-surface-1 : transparent;
+            HorizontalLayout {
+                padding-left: 12px;
+                padding-right: 12px;
+                spacing: 8px;
+                Text {
+                    text: root.title;
+                    color: Tokens.color-foreground;
+                    font-size: Tokens.typography-body-size;
+                    font-weight: Tokens.typography-weight-semibold;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                }
+                VerticalLayout {
+                    alignment: center;
+                    Icon {
+                        commands: root.open
+                            ? LucidePaths.chevron-up
+                            : LucidePaths.chevron-down;
+                        size: 14px;
+                        tint: Tokens.color-muted-foreground;
+                    }
+                }
+            }
+            trigger-touch := TouchArea {
+                mouse-cursor: pointer;
+                clicked => {
+                    root.open = !root.open;
+                    root.toggled(root.open);
+                }
+            }
+            animate background {
+                duration: Tokens.motion-fast;
+                easing: Tokens.motion-easing-standard;
+            }
+        }
+
+        // Body — `@children` must live at top-level (Slint forbids it inside
+        // `if`), so we toggle `visible` + collapse the height instead.
+        body := VerticalLayout {
+            visible: root.open;
+            min-height: root.open ? 0px : 0px;
+            max-height: root.open ? body.preferred-height : 0px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            padding-left: 12px;
+            padding-right: 12px;
+            spacing: 8px;
+            @children
+        }
+    }
+}

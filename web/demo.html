@@ -19,11 +19,9 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
         }
         /* Slint's winit-web backend sizes the canvas to its laid-out box, so we
-           constrain that box with a fixed-size wrapper: a crisp, centered
-           1100×760 app window on large screens (balanced margins), shrinking to
-           fit on small ones — never top-anchored with dead space. */
-        body { display: flex; align-items: center; justify-content: center; }
-        #frame { width: min(100vw, 1100px); height: min(100vh, 760px); }
+           give it a full-viewport frame: the showcase fills the window like a
+           real maximized desktop app (no floating card, no dead matting). */
+        #frame { width: 100vw; height: 100vh; }
         canvas { outline: none; display: block; width: 100% !important; height: 100% !important; }
         #loader {
             position: fixed;

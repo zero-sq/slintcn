@@ -7,11 +7,10 @@
 <style>
   :root { color-scheme: dark; }
   html, body { margin: 0; padding: 0; height: 100%; width: 100%; background: #0a0a0a; overflow: hidden; }
-  /* Pin the canvas to 1100×760 and scale it with a CSS transform — Slint's
-     ResizeObserver never fires, so no WebGL surface re-alloc / flicker on
-     Safari + Firefox. See demo.html for the full rationale. */
-  body { display: flex; align-items: center; justify-content: center; }
-  #frame { width: 1100px; height: 760px; flex: none; transform-origin: center center; }
+  /* Fill the iframe; PreviewHost centers the component. The canvas box is set
+     in px by JS and re-fit only after a resize settles (debounced), so Slint
+     doesn't reallocate its WebGL surface every frame (flicker on Safari/FF). */
+  #frame { width: 100vw; height: 100vh; }
   canvas { outline: none; display: block; width: 100% !important; height: 100% !important; }
   #loader { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
     background: #0a0a0a; transition: opacity 200ms ease; }
@@ -27,24 +26,22 @@
 <div id="frame"><canvas id="canvas"></canvas></div>
 <div id="loader"><div class="spinner"></div></div>
 <script type="module">
-  import init from './pkg/slintcn-showcase.js?v=0.22.1';
+  import init from './pkg/slintcn-showcase.js?v=0.22.2';
 
-  // Scale the fixed 1100×760 canvas to fit the iframe (transform-only, so
-  // Slint's ResizeObserver never fires → no flicker on any browser).
+  // Fill the iframe; freeze the canvas box during a resize and re-fit 200ms
+  // after it settles (debounced) so Slint doesn't re-alloc its surface (flicker).
   const frame = document.getElementById('frame');
-  const fit = () => {
-    const s = Math.min(window.innerWidth / 1100, window.innerHeight / 760);
-    frame.style.transform = `scale(${s})`;
-  };
+  const fit = () => { frame.style.width = window.innerWidth + 'px'; frame.style.height = window.innerHeight + 'px'; };
   fit();
-  window.addEventListener('resize', fit);
+  let resizeTimer;
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(fit, 200); });
 
   const reveal = () => document.getElementById('loader').classList.add('hidden');
   const isWinitControlFlow = (err) => {
     const msg = (err && (err.message || err.toString())) || '';
     return msg.includes('control flow') || msg.includes("isn't actually an error");
   };
-  init({ module_or_path: './pkg/slintcn-showcase_bg.wasm?v=0.22.1' })
+  init({ module_or_path: './pkg/slintcn-showcase_bg.wasm?v=0.22.2' })
     .then(reveal)
     .catch((err) => { if (isWinitControlFlow(err)) { reveal(); return; } console.error('slintcn preview failed:', err); });
 </script>

@@ -23,6 +23,7 @@ fn main() {
             "dropdown-menu", "hover-card", "menubar", "navigation-menu",
             "combobox", "command", "data-table",
             "calendar", "date-picker",
+            "sidebar", "empty", "aspect-ratio",
             "sign-in", "login", "pricing", "dashboard", "settings",
             "team", "profile", "stats",
         ])

@@ -1,0 +1,62 @@
+import { Tokens } from "../theme/tokens.slint";
+import { Icon } from "icon.slint";
+import { Button } from "button.slint";
+
+// Empty state — large icon + title + description + an optional CTA. Drop into
+// any zero-state surface (empty list, "no results" pane, first-run screen).
+// `icon` is a LucidePaths.* command string; leave empty for no icon.
+// `action-label` empty hides the button.
+export component Empty inherits Rectangle {
+    // SVG path commands for the leading icon (pass `LucidePaths.*`).
+    in property <string> icon;
+    // Bold heading at the top.
+    in property <string> title;
+    // Body text below the title.
+    in property <string> description;
+    // CTA button label; empty string hides the button.
+    in property <string> action-label;
+    // Fired when the CTA button is pressed.
+    callback action-clicked();
+
+    background: transparent;
+    preferred-width:  layout.preferred-width;
+    preferred-height: layout.preferred-height;
+
+    layout := VerticalLayout {
+        padding: 32px;
+        spacing: 12px;
+        alignment: center;
+
+        if root.icon != "": VerticalLayout {
+            alignment: center;
+            Icon {
+                commands: root.icon;
+                size: 40px;
+                tint: Tokens.color-muted-foreground;
+                stroke-width: 1.5px;
+            }
+        }
+        if root.title != "": Text {
+            text: root.title;
+            color: Tokens.color-foreground;
+            font-size: Tokens.typography-title-size;
+            font-weight: Tokens.typography-weight-semibold;
+            horizontal-alignment: center;
+        }
+        if root.description != "": Text {
+            text: root.description;
+            color: Tokens.color-muted-foreground;
+            font-size: Tokens.typography-body-size;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+        if root.action-label != "": HorizontalLayout {
+            padding-top: 8px;
+            alignment: center;
+            Button {
+                text: root.action-label;
+                clicked => { root.action-clicked(); }
+            }
+        }
+    }
+}

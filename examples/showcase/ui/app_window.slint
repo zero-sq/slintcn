@@ -62,6 +62,9 @@ import { Command, CommandItem }                 from "slintcn/components/command
 import { DataTable, DataTableRow }              from "slintcn/components/data-table.slint";
 import { Calendar }                             from "slintcn/components/calendar.slint";
 import { DatePicker }                           from "slintcn/components/date-picker.slint";
+import { Sidebar, SidebarItem }                 from "slintcn/components/sidebar.slint";
+import { Empty }                                from "slintcn/components/empty.slint";
+import { AspectRatio }                          from "slintcn/components/aspect-ratio.slint";
 import { SignIn }                               from "slintcn/blocks/sign-in.slint";
 import { Login }                                from "slintcn/blocks/login.slint";
 import { Pricing }                              from "slintcn/blocks/pricing.slint";
@@ -311,6 +314,38 @@ component PreviewHost inherits Rectangle {
                 first-day-offset: 5;
                 Button { variant: ButtonVariant.outline; text: "Pick a date"; }
             }
+            if root.name == "sidebar": Sidebar {
+                items: [
+                    { label: "Overview",  id: "home",     icon: LucidePaths.dot },
+                    { label: "Customers", id: "people",   icon: LucidePaths.dot },
+                    { label: "Products",  id: "products", icon: LucidePaths.dot },
+                    { label: "Settings",  id: "settings", icon: LucidePaths.dot },
+                ];
+                active: "people";
+                height: 280px;
+            }
+            if root.name == "empty": Empty {
+                icon: LucidePaths.plus;
+                title: "No customers yet";
+                description: "Invite your first customer to get started.";
+                action-label: "Invite customer";
+            }
+            if root.name == "aspect-ratio": AspectRatio {
+                ratio: 16 / 9;
+                width: 480px;
+                Rectangle {
+                    background: Tokens.color-surface-1;
+                    border-radius: Tokens.radius-md;
+                    border-width: 1px;
+                    border-color: Tokens.color-border-hairline;
+                    Text {
+                        text: "16 : 9";
+                        color: Tokens.color-muted-foreground;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+            }
             if root.name == "data-table": Rectangle {
                 width: 760px;
                 DataTable {
@@ -408,7 +443,7 @@ export component AppWindow inherits Window {
                         font-weight: Tokens.typography-weight-semibold;
                     }
                     Badge {
-                        text: "v0.27";
+                        text: "v0.28";
                         variant: BadgeVariant.secondary;
                         size: BadgeSize.sm;
                     }
@@ -616,7 +651,7 @@ export component AppWindow inherits Window {
                             spacing: 8px;
                             alignment: start;
                             Label { text: "Sign up for the beta"; variant: LabelVariant.default; }
-                            Badge { text: "v0.27"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
+                            Badge { text: "v0.28"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
                         }
 
                         VerticalLayout {

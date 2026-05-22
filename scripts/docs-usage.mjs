@@ -373,6 +373,38 @@ DatePicker {
     Button { text: "Pick a date"; }   // trigger = @children
 }`,
 
+  sidebar: `import { Sidebar, SidebarItem } from "slintcn/components/sidebar.slint";
+import { LucidePaths } from "slintcn/components/lucide-paths.slint";
+
+Sidebar {
+    items: [
+        { label: "Overview",  id: "home",     icon: LucidePaths.dot },
+        { label: "Customers", id: "people",   icon: LucidePaths.dot },
+        { label: "Settings",  id: "settings", icon: LucidePaths.dot },
+    ];
+    active <=> route;
+    collapsed <=> nav-collapsed;
+    navigate(id) => { /* route to id */ }
+}`,
+
+  empty: `import { Empty } from "slintcn/components/empty.slint";
+import { LucidePaths } from "slintcn/components/lucide-paths.slint";
+
+Empty {
+    icon: LucidePaths.plus;
+    title: "No customers yet";
+    description: "Invite your first customer to get started.";
+    action-label: "Invite customer";
+    action-clicked => { /* … */ }
+}`,
+
+  "aspect-ratio": `import { AspectRatio } from "slintcn/components/aspect-ratio.slint";
+
+AspectRatio {
+    ratio: 16 / 9;
+    Image { source: @image-url("hero.png"); image-fit: cover; }
+}`,
+
   // ── blocks ──
   "sign-in": `import { SignIn } from "slintcn/blocks/sign-in.slint";
 

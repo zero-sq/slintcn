@@ -1,0 +1,19 @@
+import { Tokens } from "../theme/tokens.slint";
+
+// Layout helper — wrap a child to lock its height to a fraction of its width.
+// Useful for image placeholders, video previews, chart frames. The child fills
+// the wrapper, so its `width` / `height` snap to whatever ratio you set.
+//
+//   AspectRatio {
+//       ratio: 16 / 9;
+//       Image { source: @image-url("..."); image-fit: cover; }
+//   }
+export component AspectRatio inherits Rectangle {
+    // Width-to-height ratio (e.g. 16/9 = 1.778, 1/1 = 1.0, 3/4 = 0.75).
+    in property <float> ratio: 1.0;
+
+    background: transparent;
+    height: self.width / root.ratio;
+
+    @children
+}

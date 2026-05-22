@@ -1,6 +1,20 @@
 # slintcn roadmap
 
-## v0.27 — Calendar + Date Picker (current)
+## v0.28 — App-shell primitives (current)
+
+- [x] **Sidebar** — collapsible app sidebar; items with icons + active
+      highlight, animated width on toggle. Drives the consumer's routing via
+      `active <=> string` + `navigate(id)`.
+- [x] **Empty** — zero-state surface (icon + title + description + optional
+      CTA). Drop into empty lists / first-run screens.
+- [x] **AspectRatio** — 4-line layout helper that locks a child's height to
+      a `ratio` of its width. Useful for image / video / chart frames.
+
+Resizable defers — the API for splitting `@children` cleanly into two
+positional slots isn't expressive enough in Slint 1.16. `Drawer` is covered
+by the existing `Sheet { side: bottom }`.
+
+## v0.27 — Calendar + Date Picker
 
 Two new form components. Slint 1.16 has no `Date` type and no date arithmetic,
 so the **consumer owns the date math**: pass `days-in-month` + `first-day-
@@ -104,14 +118,6 @@ must keep working under adoption mode (external tokens/enums, routes).
 Lead with the menu family (we already have the overlay infra) and the app-shell
 primitives (they serve real adopters like the Zero desktop app). Charts are a
 heavy, separate R&D track; the Game/HUD layer is the long-term differentiator.
-
-### v0.28 — App-shell primitives
-- **Sidebar** (collapsible app sidebar), **Resizable** (split panes), **Drawer**
-  (sheet variant).
-- Why: makes slintcn viable for full desktop app shells — directly serves
-  adopters like the Zero desktop app.
-- Reuse: Sheet (Drawer), ScrollArea, layout primitives; Resizable = TouchArea
-  drag + width state.
 
 ### v0.29 — Catalog round-out (small gaps)
 - Collapsible, Aspect Ratio, Input OTP, Spinner, Carousel, Button Group,

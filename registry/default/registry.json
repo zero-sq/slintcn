@@ -2,7 +2,7 @@
   "$schema": "https://slintcn.dev/schema/registry.schema.json",
   "name": "default",
   "homepage": "https://stevekwon211.github.io/slintcn",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "description": "Dark glass theme — shadcn-adjacent primitives for Slint",
   "slintVersion": ">=1.16",
   "theme": {
@@ -412,6 +412,30 @@
       "category": "form",
       "files": ["components/date-picker.slint"],
       "requires": ["theme", "calendar"]
+    },
+    "sidebar": {
+      "type": "registry:ui",
+      "title": "Sidebar",
+      "description": "Collapsible app sidebar — icons + labels, active highlight.",
+      "category": "navigation",
+      "files": ["components/sidebar.slint"],
+      "requires": ["theme", "icon", "lucide-paths"]
+    },
+    "empty": {
+      "type": "registry:ui",
+      "title": "Empty",
+      "description": "Empty-state surface — icon + title + description + optional CTA.",
+      "category": "display",
+      "files": ["components/empty.slint"],
+      "requires": ["theme", "icon", "button"]
+    },
+    "aspect-ratio": {
+      "type": "registry:ui",
+      "title": "Aspect Ratio",
+      "description": "Layout helper — locks child height to a fraction of its width.",
+      "category": "layout",
+      "files": ["components/aspect-ratio.slint"],
+      "requires": ["theme"]
     },
     "sign-in": {
       "type": "registry:block",

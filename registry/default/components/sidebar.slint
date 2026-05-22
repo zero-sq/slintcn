@@ -1,0 +1,129 @@
+import { Tokens } from "../theme/tokens.slint";
+import { Icon } from "icon.slint";
+import { LucidePaths } from "lucide-paths.slint";
+
+// Collapsible app sidebar — vertical list of items with optional icons and an
+// active highlight. Toggle between expanded (label + icon) and collapsed
+// (icon-only narrow column). `icon` on each item is a `LucidePaths.*` command
+// string; leave it empty for label-only items.
+export struct SidebarItem { label: string, id: string, icon: string }
+
+export component Sidebar inherits Rectangle {
+    // Items shown top-to-bottom.
+    in property <[SidebarItem]> items;
+    // Two-way; id of the active row. Compare against `items[i].id`.
+    in-out property <string> active;
+    // Two-way; when true, the sidebar shrinks to `collapsed-width` and only
+    // icons render.
+    in-out property <bool> collapsed: false;
+    // Width while `collapsed` is true.
+    in property <length> collapsed-width: 56px;
+    // Width while expanded.
+    in property <length> expanded-width: 240px;
+    // Fired with the chosen item's id; `active` updates first.
+    callback navigate(string);
+    // Fired after the user clicks the collapse / expand toggle.
+    callback toggle();
+
+    background: Tokens.color-card;
+    border-color: Tokens.color-border-hairline;
+    border-width: 1px;
+    border-radius: Tokens.radius-md;
+    width: root.collapsed ? root.collapsed-width : root.expanded-width;
+
+    animate width {
+        duration: Tokens.motion-base;
+        easing: Tokens.motion-easing-standard;
+    }
+
+    VerticalLayout {
+        padding: 8px;
+        spacing: 2px;
+
+        // Toggle row — chevron pivots on collapse state.
+        Rectangle {
+            height: 36px;
+            border-radius: Tokens.radius-sm;
+            background: toggle-touch.has-hover
+                ? Tokens.color-surface-1 : transparent;
+            HorizontalLayout {
+                padding-left: 10px;
+                padding-right: 10px;
+                spacing: 8px;
+                VerticalLayout {
+                    alignment: center;
+                    Icon {
+                        commands: root.collapsed
+                            ? LucidePaths.chevron-right
+                            : LucidePaths.chevron-left;
+                        size: 16px;
+                        tint: Tokens.color-muted-foreground;
+                    }
+                }
+                Text {
+                    visible: !root.collapsed;
+                    text: "Collapse";
+                    color: Tokens.color-muted-foreground;
+                    font-size: Tokens.typography-body-sm-size;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                }
+            }
+            toggle-touch := TouchArea {
+                mouse-cursor: pointer;
+                clicked => {
+                    root.collapsed = !root.collapsed;
+                    root.toggle();
+                }
+            }
+        }
+
+        // Items — icon on the left, label hidden when collapsed.
+        for item[i] in root.items: Rectangle {
+            height: 36px;
+            border-radius: Tokens.radius-sm;
+            background: item.id == root.active
+                ? Tokens.color-surface-2
+                : (item-touch.has-hover ? Tokens.color-surface-1 : transparent);
+            HorizontalLayout {
+                padding-left: 10px;
+                padding-right: 10px;
+                spacing: 10px;
+                VerticalLayout {
+                    alignment: center;
+                    if item.icon != "": Icon {
+                        commands: item.icon;
+                        size: 16px;
+                        tint: item.id == root.active
+                            ? Tokens.color-foreground
+                            : Tokens.color-muted-foreground;
+                    }
+                }
+                Text {
+                    visible: !root.collapsed;
+                    text: item.label;
+                    color: item.id == root.active
+                        ? Tokens.color-foreground
+                        : Tokens.color-muted-foreground;
+                    font-size: Tokens.typography-body-sm-size;
+                    font-weight: item.id == root.active
+                        ? Tokens.typography-weight-semibold
+                        : Tokens.typography-weight-medium;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                }
+            }
+            item-touch := TouchArea {
+                mouse-cursor: pointer;
+                clicked => {
+                    root.active = item.id;
+                    root.navigate(item.id);
+                }
+            }
+            animate background {
+                duration: Tokens.motion-fast;
+                easing: Tokens.motion-easing-standard;
+            }
+        }
+    }
+}

@@ -80,8 +80,7 @@ function topnav() {
     <a class="logo" href="../"><span class="dot"></span> slintcn <span class="pill">docs</span></a>
     <span class="grow"></span>
     <a class="tn-link" href="../demo.html">Playground</a>
-    <a class="tn-link" href="https://github.com/stevekwon211/slintcn">GitHub</a>
-    <a class="tn-link star-link" href="https://github.com/stevekwon211/slintcn" target="_blank" rel="noreferrer">Star <span data-stars></span></a>
+    <a class="tn-link star-link" href="https://github.com/stevekwon211/slintcn" target="_blank" rel="noreferrer">GitHub <span data-stars></span></a>
     <a class="tn-link" href="https://www.npmjs.com/package/slintcn">npm</a>
   </div></header>
   <div id="scrim"></div>`;

@@ -1,5 +1,82 @@
 # slintcn roadmap
 
+## Planned (v0.23+)
+
+The distribution system (CLI · registry · docs · adoption mode) is at parity
+with shadcn and ahead in places. The remaining gap is purely **component
+catalog breadth**. These waves close it, ordered by value to real Slint apps,
+not by chasing shadcn's full React-era list. Each wave ships a complete set:
+component + variants + snapshot + docs preview + a11y/behavior contract + usage
+snippet (the `docs-accuracy` test enforces the metadata). Every new component
+must keep working under adoption mode (external tokens/enums, routes).
+
+Lead with the menu family (we already have the overlay infra) and the app-shell
+primitives (they serve real adopters like the Zero desktop app). Charts are a
+heavy, separate R&D track; the Game/HUD layer is the long-term differentiator.
+
+### v0.23 — Menu family (overlay expansion)
+- **Dropdown Menu, Menubar, Navigation Menu, Hover Card.**
+- Why: the highest-frequency missing primitives — every toolbar / profile menu.
+- Reuse: `PopupWindow` + the Popover/ContextMenu/Select patterns (close-on-
+  click-outside, cursor/anchor positioning, arrow-key nav).
+- Risk: nested submenus (Menubar) need careful PopupWindow stacking + focus.
+
+### v0.24 — Command & Combobox (search / filter)
+- **Combobox** (searchable Select), **Command** (⌘K palette: groups + filter).
+- Why: ⌘K is table-stakes in modern tools; Combobox unblocks large option sets.
+- Reuse: Select trigger + PopupWindow + Input for the query; filter a VecModel.
+- Risk: result highlight + keyboard nav; the global ⌘K shortcut is consumer-side.
+
+### v0.25 — Data Table
+- Sortable / filterable / paginated / row-selectable table (extends `Table`).
+- Why: the single biggest "complex" gap; most-requested.
+- Reuse: Table + Checkbox (select) + Pagination + Input (filter) + Button (sort).
+- Risk: column sizing + virtualized scroll for large data (ScrollArea). Own wave.
+
+### v0.26 — Date & Calendar
+- **Calendar** (month grid + keyboard), **Date Picker** (Calendar in a Popover),
+  basic range select.
+- Why: forms / scheduling.
+- Risk: date math in Rust glue, locale / first-day-of-week, range selection.
+
+### v0.27 — App-shell primitives
+- **Sidebar** (collapsible app sidebar), **Resizable** (split panes), **Drawer**
+  (sheet variant).
+- Why: makes slintcn viable for full desktop app shells — directly serves
+  adopters like the Zero desktop app.
+- Reuse: Sheet (Drawer), ScrollArea, layout primitives; Resizable = TouchArea
+  drag + width state.
+
+### v0.28 — Catalog round-out (small gaps)
+- Collapsible, Aspect Ratio, Input OTP, Spinner, Carousel, Button Group,
+  Empty / Field / Item, Native Select, Kbd (alias Keycap).
+- Why: parity polish; each is small.
+
+### v0.30 — Charts (separate R&D track)
+- Area / Bar / Line / Pie.
+- Why: shadcn has a whole charts section — a real gap.
+- Risk: **heavy.** No Slint charting primitive exists; build one (Path/polyline
+  drawing + axes/scales, geometry computed in Rust). Gate on actual demand.
+
+### Tooling track (parallel)
+- **MCP server** — let AI agents discover + `slintcn add` (shadcn ships one);
+  reuse the registry + `bin/slintcn.mjs` helpers.
+- **Directory page** (shadcn `/docs/directory` analog) for community registries.
+- Optional **`/create`-style preset page** (pick components → copy command).
+
+### v1.0 — Game / HUD expansion (the differentiator)
+- Hotbar, reticle, health/mana/stamina bars, minimap frame, full keycap-hint
+  system, damage numbers.
+- Why: slintcn's unique angle ("Slint for games + tools"); no shadcn equivalent.
+  Widen this moat once catalog parity is "good enough."
+
+> Prioritization note: Slint's audience is smaller than React's, so depth on
+> app-shell + the components Slint apps actually need + the HUD differentiator
+> beats chasing all ~60 shadcn components. Skip the React-only items (Form/
+> react-hook-form, framework adapters, Figma).
+
+---
+
 ## v0.22.1 — responsive site + polish (current)
 
 - [x] **Docs mobile nav** — off-canvas drawer (☰ → sidebar over a scrim; closes on

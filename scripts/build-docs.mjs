@@ -76,12 +76,14 @@ function sidebar(items, activeName) {
 
 function topnav() {
   return `<header class="topnav"><div class="tn-inner">
+    <button class="menu-btn" aria-label="Toggle navigation" aria-expanded="false">☰</button>
     <a class="logo" href="../"><span class="dot"></span> slintcn <span class="pill">docs</span></a>
     <span class="grow"></span>
     <a class="tn-link" href="../demo.html">Playground</a>
     <a class="tn-link" href="https://github.com/stevekwon211/slintcn">GitHub</a>
     <a class="tn-link" href="https://www.npmjs.com/package/slintcn">npm</a>
-  </div></header>`;
+  </div></header>
+  <div id="scrim"></div>`;
 }
 
 function page(item, prev, next, items, api = { enums: {}, a11y: null }) {
@@ -312,8 +314,32 @@ h2{font-size:21px;letter-spacing:-.01em;margin:40px 0 14px;scroll-margin-top:72p
 .idx-t{font-weight:600;margin-bottom:4px}.idx-d{font-size:13px;color:var(--muted)}
 /* slint syntax highlight */
 .tok-cmt{color:#6b7280}.tok-str{color:#86efac}.tok-kw{color:#c4b5fd}.tok-type{color:#7dd3fc}.tok-prop{color:#fca5a5}
+/* mobile nav drawer */
+.menu-btn{display:none;background:transparent;border:0;color:var(--fg);font-size:20px;line-height:1;cursor:pointer;padding:6px 8px;margin-left:-6px;border-radius:8px}
+.menu-btn:hover{background:var(--surface)}
+#scrim{position:fixed;inset:56px 0 0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:25}
+#scrim.open{opacity:1;pointer-events:auto}
 @media(max-width:1100px){.shell{grid-template-columns:220px minmax(0,1fr)}.toc{display:none}}
-@media(max-width:760px){.shell{grid-template-columns:1fr}.sidebar{display:none}.main{padding:24px 20px 60px}.idx-grid{grid-template-columns:1fr}}`;
+@media(max-width:900px){
+  .menu-btn{display:block}
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .sidebar{position:fixed;left:0;top:56px;bottom:0;width:284px;height:auto;background:var(--bg);transform:translateX(-100%);transition:transform .22s ease;z-index:30}
+  .sidebar.open{transform:translateX(0)}
+  body.menu-open{overflow:hidden}
+}
+@media(max-width:760px){
+  .main{padding:24px 20px 64px}
+  h1{font-size:clamp(26px,7vw,34px)}
+  .desc{font-size:15px}
+  h2{font-size:19px;margin-top:32px}
+  .preview-card{height:320px}
+  .idx-grid{grid-template-columns:1fr}
+  .api-row{flex-direction:column;gap:6px}
+  .api-enum{min-width:0}
+  .s-item{padding:9px 10px}
+  .tn-link{font-size:13px}
+  .tn-inner{gap:12px;padding:0 16px}
+}`;
 
 const DOCS_JS = `// package-manager pills → swap the shown command
 document.querySelectorAll(".install").forEach((box)=>{
@@ -361,6 +387,17 @@ if(heads.length&&tl.length){
   const onScroll=()=>{let a=heads[0].id;for(const h of heads){if(h.getBoundingClientRect().top<120)a=h.id;}
     tl.forEach((x)=>x.classList.toggle("active",x.getAttribute("href")==="#"+a));};
   document.addEventListener("scroll",onScroll,{passive:true});onScroll();
-}`;
+}
+// mobile nav drawer
+(function(){
+  const sb=document.querySelector(".sidebar"),sc=document.getElementById("scrim"),mb=document.querySelector(".menu-btn");
+  if(!sb||!mb)return;
+  const set=(open)=>{sb.classList.toggle("open",open);sc&&sc.classList.toggle("open",open);
+    document.body.classList.toggle("menu-open",open);mb.setAttribute("aria-expanded",open);};
+  mb.addEventListener("click",()=>set(!sb.classList.contains("open")));
+  sc&&sc.addEventListener("click",()=>set(false));
+  sb.querySelectorAll(".s-item").forEach((a)=>a.addEventListener("click",()=>set(false)));
+  document.addEventListener("keydown",(e)=>{if(e.key==="Escape")set(false);});
+})();`;
 
 main().catch((e) => { console.error(e); process.exit(1); });

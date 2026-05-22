@@ -1,6 +1,17 @@
 # slintcn roadmap
 
-## v0.19 — adoption mode (install into an existing design system) (current)
+## v0.20 — adoption W2 (headless panels + external enums) (current)
+
+- [x] **Headless overlay panels** — extracted `DialogPanel` / `AlertDialogPanel`
+      / `SheetPanel` (the card, no Scrim/mount) into their own registry items;
+      the mounted `Dialog`/`AlertDialog`/`Sheet` are now `Scrim` + panel
+      composed. Consumers with their own modal root install just the panel.
+      Visually identical (snapshot + embed-preview verified).
+- [x] **External enums** — `--external-enums <dir>` / `externalEnums`:
+      `stripLocalEnums` removes a component's `export enum`s and imports
+      (+ re-exports, so siblings still resolve) them from `<dir>/<name>.slint`.
+
+## v0.19 — adoption mode (install into an existing design system)
 
 Prompted by Zero-desktop-team feedback: slintcn's *components* were fine but its
 *integration model* assumed a standalone `ui/slintcn` island. This wave makes the

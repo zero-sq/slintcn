@@ -1,4 +1,4 @@
-// slintcn AlertDialog — destructive-confirmation modal.
+// slintcn AlertDialog — destructive-confirmation modal (Scrim + AlertDialogPanel).
 //
 // Like Dialog, but:
 //   - no body slot (the description IS the message)
@@ -7,12 +7,13 @@
 //   - Escape fires cancelled()
 //
 // Mount the same way as Dialog: LAST child of Window, sized via
-// `width: parent.width; height: parent.height`.
+// `width: parent.width; height: parent.height`. For your own overlay root,
+// install `alert-dialog-panel` and mount `AlertDialogPanel` directly.
 
 import { Tokens } from "../theme/tokens.slint";
 import { Scrim } from "popup-helpers.slint";
-import { Button, ButtonVariant } from "button.slint";
-import { Separator, SeparatorOrientation } from "separator.slint";
+import { ButtonVariant } from "button.slint";
+import { AlertDialogPanel } from "alert-dialog-panel.slint";
 
 export component AlertDialog inherits Rectangle {
     in-out property <bool> open: false;
@@ -34,17 +35,14 @@ export component AlertDialog inherits Rectangle {
         // Backdrop click is intentionally a no-op — the user must choose.
     }
 
-    panel := Rectangle {
-        background: Tokens.color-card;
-        border-color: Tokens.color-border-hairline;
-        border-width: 1px;
-        border-radius: Tokens.radius-lg;
-        drop-shadow-blur:     Tokens.shadow-e3-blur;
-        drop-shadow-offset-y: Tokens.shadow-e3-offset-y;
-        drop-shadow-color:    Tokens.shadow-e3-color;
+    panel := AlertDialogPanel {
+        title: root.title;
+        description: root.description;
+        action-label: root.action-label;
+        cancel-label: root.cancel-label;
+        action-variant: root.action-variant;
+        trap-focus: root.open;
 
-        width: 420px;
-        height: layout.preferred-height;
         x: (root.width - self.width) / 2;
         y: (root.height - self.height) / 2;
 
@@ -55,85 +53,21 @@ export component AlertDialog inherits Rectangle {
             easing: Tokens.motion-easing-standard;
         }
 
-        // Wrap content so empty-area clicks are absorbed (no fall-through to
-        // Scrim); nested buttons still receive their own clicks.
-        TouchArea {
-        clicked => { }
-        layout := VerticalLayout {
-            padding: Tokens.spacing-xl;
-            spacing: Tokens.spacing-lg;
-
-            VerticalLayout {
-                spacing: Tokens.spacing-sm;
-                if root.title != "": Text {
-                    text: root.title;
-                    color: Tokens.color-foreground;
-                    font-size: Tokens.typography-title-size;
-                    font-weight: Tokens.typography-weight-semibold;
-                }
-                if root.description != "": Text {
-                    text: root.description;
-                    color: Tokens.color-muted-foreground;
-                    font-size: Tokens.typography-body-size;
-                    wrap: word-wrap;
-                }
-            }
-
-            Separator { orientation: SeparatorOrientation.horizontal; }
-
-            HorizontalLayout {
-                alignment: end;
-                spacing: Tokens.spacing-sm;
-                cancel-btn := Button {
-                    variant: ButtonVariant.outline;
-                    text: root.cancel-label;
-                    clicked => {
-                        root.open = false;
-                        root.cancelled();
-                    }
-                }
-                action-btn := Button {
-                    variant: root.action-variant;
-                    text: root.action-label;
-                    clicked => {
-                        root.open = false;
-                        root.confirmed();
-                    }
-                }
-            }
+        cancelled => {
+            root.open = false;
+            root.cancelled();
         }
+        confirmed => {
+            root.open = false;
+            root.confirmed();
         }
     }
-
-    // Focus trap state: 0 = Cancel (default on open), 1 = Action.
-    in-out property <int> trap-index: 0;
 
     changed open => {
         if (self.open) {
-            self.trap-index = 0;
-            cancel-btn.focus();
+            panel.take-focus();
         }
     }
 
-    forward-focus: focus-scope;
-    focus-scope := FocusScope {
-        enabled: root.open;
-        key-pressed(event) => {
-            if (event.text == "\u{1b}") {
-                root.open = false;
-                root.cancelled();
-                return accept;
-            }
-            // Tab / Shift+Tab cycle between Cancel (0) and Action (1).
-            // With two focusables the wrap direction is symmetric — both
-            // Tab and Shift+Tab just flip the index.
-            if (event.text == "\u{9}") {
-                root.trap-index = root.trap-index == 0 ? 1 : 0;
-                if (root.trap-index == 0) { cancel-btn.focus(); }
-                else                       { action-btn.focus(); }
-                return accept;
-            }
-            return reject;
-        }
-    }
+    forward-focus: panel;
 }

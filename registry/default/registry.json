@@ -2,7 +2,7 @@
   "$schema": "https://slintcn.dev/schema/registry.schema.json",
   "name": "default",
   "homepage": "https://stevekwon211.github.io/slintcn",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "description": "Dark glass theme — shadcn-adjacent primitives for Slint",
   "slintVersion": ">=1.16",
   "theme": {
@@ -69,13 +69,29 @@
       "files": ["components/popup-helpers.slint"],
       "requires": ["theme"]
     },
+    "dialog-panel": {
+      "type": "registry:ui",
+      "title": "Dialog Panel",
+      "description": "Headless dialog card (no Scrim/mount) for your own overlay root.",
+      "category": "overlay",
+      "files": ["components/dialog-panel.slint"],
+      "requires": ["theme", "button", "separator", "icon", "lucide-paths"]
+    },
     "dialog": {
       "type": "registry:ui",
       "title": "Dialog",
       "description": "Modal overlay with title/description, X-close, click-outside dismiss.",
       "category": "overlay",
       "files": ["components/dialog.slint"],
-      "requires": ["theme", "popup-helpers", "button", "separator", "icon", "lucide-paths"]
+      "requires": ["theme", "popup-helpers", "dialog-panel"]
+    },
+    "alert-dialog-panel": {
+      "type": "registry:ui",
+      "title": "Alert Dialog Panel",
+      "description": "Headless destructive-confirm card (Cancel + Action) for your own overlay root.",
+      "category": "overlay",
+      "files": ["components/alert-dialog-panel.slint"],
+      "requires": ["theme", "button", "separator"]
     },
     "alert-dialog": {
       "type": "registry:ui",
@@ -83,7 +99,15 @@
       "description": "Destructive-confirm modal — Cancel + Action, no backdrop dismiss.",
       "category": "overlay",
       "files": ["components/alert-dialog.slint"],
-      "requires": ["theme", "popup-helpers", "button", "separator"]
+      "requires": ["theme", "popup-helpers", "button", "alert-dialog-panel"]
+    },
+    "sheet-panel": {
+      "type": "registry:ui",
+      "title": "Sheet Panel",
+      "description": "Headless drawer card surface (no Scrim/slide) for your own overlay root.",
+      "category": "overlay",
+      "files": ["components/sheet-panel.slint"],
+      "requires": ["theme"]
     },
     "sheet": {
       "type": "registry:ui",
@@ -91,7 +115,7 @@
       "description": "Side-anchored drawer (top/right/bottom/left) with slide animation.",
       "category": "overlay",
       "files": ["components/sheet.slint"],
-      "requires": ["theme", "popup-helpers"]
+      "requires": ["theme", "popup-helpers", "sheet-panel"]
     },
     "tooltip": {
       "type": "registry:ui",

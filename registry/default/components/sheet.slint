@@ -1,28 +1,16 @@
-// slintcn Sheet — side-anchored panel (drawer).
+// slintcn Sheet — side-anchored panel (drawer): Scrim + sliding SheetPanel.
 //
 // Mount as the LAST child of Window, sized to the window via
 // `width: parent.width; height: parent.height`. `side` controls anchor edge
-// and slide direction. Panel uses fixed cross-axis dimension (360 / 320 px);
-// resize via `panel-extent` if you need a different drawer width.
+// and slide direction. Panel uses fixed cross-axis dimension (panel-extent).
+// For your own overlay root, install `sheet-panel` and mount `SheetPanel`.
 //
-// Focus trap policy (v0.8):
-//
-// Sheet does NOT trap Tab — its @children body is consumer-supplied and
-// often contains its own focusables (Inputs, Buttons). A blanket Tab trap
-// would break intra-body keyboard navigation. Consumers needing a true
-// trap should:
-//
-//   1. Place a final FocusScope wrapping their @children content, and
-//   2. Intercept `event.text == "\u{9}"` (Tab) on its boundary, calling
-//      `.focus()` on the first child to cycle.
-//
-// Slint 1.16 doesn't expose enough introspection (no "focusable
-// descendants" iterator) for the modal itself to do this generically.
-// Dialog and AlertDialog can trap because they own a fixed set of focusables
-// (Close button; Cancel + Action buttons respectively).
+// Focus trap policy: Sheet does NOT trap Tab — its @children body is
+// consumer-supplied and often contains its own focusables. Escape dismisses.
 
 import { Tokens } from "../theme/tokens.slint";
 import { Scrim } from "popup-helpers.slint";
+import { SheetPanel } from "sheet-panel.slint";
 
 export enum SheetSide { top, right, bottom, left }
 
@@ -54,26 +42,22 @@ export component Sheet inherits Rectangle {
         }
     }
 
-    panel := Rectangle {
-        background: Tokens.color-card;
-        border-color: Tokens.color-border-hairline;
-        border-width: 1px;
-        drop-shadow-blur:     Tokens.shadow-e3-blur;
-        drop-shadow-offset-y: Tokens.shadow-e3-offset-y;
-        drop-shadow-color:    Tokens.shadow-e3-color;
+    panel := SheetPanel {
+        title: root.title;
+        description: root.description;
 
         width:  root.is-horizontal ? root.panel-extent : root.width;
         height: root.is-horizontal ? root.height       : root.panel-extent;
 
-        x: side == SheetSide.left
+        x: root.side == SheetSide.left
             ? (root.open ? 0px : -self.width) :
-           side == SheetSide.right
+           root.side == SheetSide.right
             ? (root.open ? root.width - self.width : root.width) :
            /* top/bottom */ 0px;
 
-        y: side == SheetSide.top
+        y: root.side == SheetSide.top
             ? (root.open ? 0px : -self.height) :
-           side == SheetSide.bottom
+           root.side == SheetSide.bottom
             ? (root.open ? root.height - self.height : root.height) :
            /* left/right */ 0px;
 
@@ -82,33 +66,7 @@ export component Sheet inherits Rectangle {
             easing: Tokens.motion-easing-standard;
         }
 
-        // Wrap content so empty-area clicks are absorbed (no fall-through to
-        // Scrim); nested controls still receive their own clicks.
-        TouchArea {
-        clicked => { }
-        VerticalLayout {
-            padding: Tokens.spacing-xl;
-            spacing: Tokens.spacing-lg;
-
-            VerticalLayout {
-                spacing: Tokens.spacing-sm;
-                if root.title != "": Text {
-                    text: root.title;
-                    color: Tokens.color-foreground;
-                    font-size: Tokens.typography-title-size;
-                    font-weight: Tokens.typography-weight-semibold;
-                }
-                if root.description != "": Text {
-                    text: root.description;
-                    color: Tokens.color-muted-foreground;
-                    font-size: Tokens.typography-body-size;
-                    wrap: word-wrap;
-                }
-            }
-
-            @children
-        }
-        }
+        @children
     }
 
     forward-focus: focus-scope;

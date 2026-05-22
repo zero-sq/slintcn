@@ -104,6 +104,7 @@ export function resolveConfig(rawConfig, cwd) {
     blocksDir,
     // Adoption mode (all opt-in; absent = standalone behavior unchanged):
     externalTokens: rawConfig?.externalTokens ? path.resolve(cwd, rawConfig.externalTokens) : null,
+    externalEnums: rawConfig?.externalEnums ? path.resolve(cwd, rawConfig.externalEnums) : null,
     importMap: rawConfig?.importMap ?? {},
     fileNameStyle: rawConfig?.fileNameStyle ?? "kebab",
     overwrite: rawConfig?.overwrite ?? true,
@@ -116,6 +117,21 @@ export function styleFileName(p, style) {
   const slash = p.lastIndexOf("/");
   const dir = slash >= 0 ? p.slice(0, slash + 1) : "";
   return dir + p.slice(dir.length).replace(/-/g, "_");
+}
+
+// Remove a component's local `export enum X {...}` blocks and import (+ re-export,
+// so sibling files importing them still resolve) the same names from an external
+// path — for consumers whose enums are generated elsewhere (`externalEnums`).
+// No-op when the file declares no enums. Returns the rewritten content.
+export function stripLocalEnums(content, importPath) {
+  const names = [];
+  const stripped = content.replace(
+    /export\s+enum\s+([A-Za-z0-9_]+)\s*\{[^}]*\}\s*/g,
+    (_m, name) => { names.push(name); return ""; },
+  );
+  if (names.length === 0) return content;
+  const list = names.join(", ");
+  return `import { ${list} } from "${importPath}";\nexport { ${list} }\n${stripped}`;
 }
 
 /**
@@ -204,8 +220,6 @@ export function rewriteImports(content, config, destAbs) {
   });
 }
 
-// `srcRel` lets the source differ from the destination path (used for
-// base-color palette variants: read palette-zinc.slint, write palette.slint).
 // Resolve a registry file → its rewritten content + destination + planned
 // action. Writes unless `dryRun`; skips an existing file unless `overwrite`.
 // `srcRel` lets the source differ from the dest (base-color palette variants).
@@ -213,7 +227,15 @@ async function copyRegistryFile(rel, config, opts = {}) {
   const { srcRel = rel, dryRun = false, overwrite = config.overwrite ?? true } = opts;
   const src = path.join(ROOT, "registry", config.style, srcRel);
   const dest = routeDest(rel, config);
-  const content = rewriteImports(await readFile(src, "utf8"), config, dest);
+  let content = rewriteImports(await readFile(src, "utf8"), config, dest);
+  // External enums: strip this component's local enums, import them from the
+  // host's generated enum file (same basename) instead.
+  if (config.externalEnums && rel.startsWith("components/")) {
+    const base = styleFileName(path.basename(rel), config.fileNameStyle ?? "kebab");
+    let enumPath = path.relative(path.dirname(dest), path.join(config.externalEnums, base));
+    if (!enumPath.startsWith(".") && !enumPath.startsWith("/")) enumPath = "./" + enumPath;
+    content = stripLocalEnums(content, enumPath.split(path.sep).join("/"));
+  }
   const existed = await exists(dest);
   if (existed && !overwrite) return { dest, content, status: "skip" };
   const status = existed ? "overwrite" : "new";
@@ -358,6 +380,7 @@ async function buildAddConfig(cwd, opts) {
   rawConfig = { ...rawConfig };
   if (opts.componentsDir) rawConfig.componentsDir = opts.componentsDir;
   if (opts.externalTokens) rawConfig.externalTokens = opts.externalTokens;
+  if (opts.externalEnums) rawConfig.externalEnums = opts.externalEnums;
   if (opts.fileNameStyle) rawConfig.fileNameStyle = opts.fileNameStyle;
   if (opts.overwrite === false) rawConfig.overwrite = false;
   if (opts.importMapFile) {
@@ -625,6 +648,7 @@ Usage:
 
 Adoption flags (install into an existing design system):
   --external-tokens <path>    Don't install theme; import Tokens from <path>
+  --external-enums <dir>     Strip component-local enums; import them from <dir>/<name>.slint
   --components-dir <dir>      Where component files land
   --filename-style snake      kebab (default) | snake  (slot-tile → slot_tile)
   --import-map <file.json>    Arbitrary "<import>": "<target>" overrides
@@ -652,7 +676,7 @@ async function main() {
       break;
     }
     case "add": {
-      const VALUE_FLAGS = new Set(["--external-tokens", "--components-dir", "--filename-style", "--import-map"]);
+      const VALUE_FLAGS = new Set(["--external-tokens", "--external-enums", "--components-dir", "--filename-style", "--import-map"]);
       const flag = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
       const names = [];
       for (let k = 0; k < args.length; k++) {
@@ -668,6 +692,7 @@ async function main() {
         dryRun: args.includes("--dry-run"),
         overwrite: args.includes("--no-overwrite") ? false : undefined,
         externalTokens: flag("--external-tokens"),
+        externalEnums: flag("--external-enums"),
         componentsDir: flag("--components-dir"),
         fileNameStyle: flag("--filename-style"),
         importMapFile: flag("--import-map"),

@@ -76,6 +76,32 @@ Sheet {
     title: "Filters";
 }`,
 
+  "dialog-panel": `import { DialogPanel } from "slintcn/components/dialog-panel.slint";
+
+// Headless: mount in your own overlay root, control visibility + centering.
+DialogPanel {
+    title: "Confirm your action";
+    description: "This cannot be undone.";
+    closed => { /* hide me */ }
+}`,
+
+  "alert-dialog-panel": `import { AlertDialogPanel } from "slintcn/components/alert-dialog-panel.slint";
+
+AlertDialogPanel {
+    title: "Delete this account?";
+    description: "This action cannot be undone.";
+    confirmed => { /* … */ }
+    cancelled => { /* … */ }
+}`,
+
+  "sheet-panel": `import { SheetPanel } from "slintcn/components/sheet-panel.slint";
+
+// You position + size it inside your overlay root.
+SheetPanel {
+    title: "Filters";
+    description: "Refine your results.";
+}`,
+
   tooltip: `import { Tooltip, TooltipSide } from "slintcn/components/tooltip.slint";
 
 Tooltip {

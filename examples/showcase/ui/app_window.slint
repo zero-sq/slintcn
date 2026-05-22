@@ -18,6 +18,9 @@ import { Label, LabelVariant }                  from "slintcn/components/label.s
 import { Dialog }                               from "slintcn/components/dialog.slint";
 import { AlertDialog }                          from "slintcn/components/alert-dialog.slint";
 import { Sheet, SheetSide }                     from "slintcn/components/sheet.slint";
+import { DialogPanel }                          from "slintcn/components/dialog-panel.slint";
+import { AlertDialogPanel }                     from "slintcn/components/alert-dialog-panel.slint";
+import { SheetPanel }                           from "slintcn/components/sheet-panel.slint";
 import { Tooltip, TooltipSide }                 from "slintcn/components/tooltip.slint";
 import { Toaster, ToastQueue, ToastVariant, ToastItem } from "slintcn/components/toast.slint";
 
@@ -205,6 +208,11 @@ component PreviewHost inherits Rectangle {
 
             if root.name == "alert": Alert { width: 380px; icon: LucidePaths.check; title: "Deployed"; description: "Your changes are live."; }
 
+            // headless overlay panels (standalone cards)
+            if root.name == "dialog-panel": DialogPanel { title: "Confirm your action"; description: "Headless DialogPanel — mount in your own overlay root."; }
+            if root.name == "alert-dialog-panel": AlertDialogPanel { title: "Delete this account?"; description: "This action cannot be undone."; }
+            if root.name == "sheet-panel": SheetPanel { width: 320px; height: 280px; title: "Filters"; description: "Refine your results."; }
+
             if root.name == "card": Card { variant: CardVariant.solid; width: 300px; height: 140px; VerticalLayout { padding: parent.padding-l; spacing: 8px;
                 Text { text: "Card title"; color: Tokens.color-foreground; font-size: Tokens.typography-title-size; font-weight: Tokens.typography-weight-semibold; }
                 Text { text: "A surface container."; color: Tokens.color-muted-foreground; font-size: Tokens.typography-body-size; } } }
@@ -316,7 +324,7 @@ export component AppWindow inherits Window {
                         font-weight: Tokens.typography-weight-semibold;
                     }
                     Badge {
-                        text: "v0.18";
+                        text: "v0.20";
                         variant: BadgeVariant.secondary;
                         size: BadgeSize.sm;
                     }
@@ -524,7 +532,7 @@ export component AppWindow inherits Window {
                             spacing: 8px;
                             alignment: start;
                             Label { text: "Sign up for the beta"; variant: LabelVariant.default; }
-                            Badge { text: "v0.18"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
+                            Badge { text: "v0.20"; variant: BadgeVariant.secondary; size: BadgeSize.sm; }
                         }
 
                         VerticalLayout {

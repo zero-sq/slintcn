@@ -1,7 +1,11 @@
-// slintcn Dialog — modal overlay (Scrim + card panel), shadcn chrome.
+// slintcn Dialog — modal overlay (Scrim + DialogPanel), shadcn chrome.
 //
 // Mount as the LAST child of Window (see popup-helpers.slint) sized to the
 // full window via `width: parent.width; height: parent.height`.
+//
+// Dialog = backdrop Scrim + a centered, fading DialogPanel. If you have your
+// own overlay root / modal orchestration, install `dialog-panel` and mount
+// `DialogPanel` directly instead.
 //
 // Public API:
 //   in-out property <bool> open
@@ -10,18 +14,11 @@
 //   in property <string> close-label: "Close"
 //   callback dismissed()
 //
-// Body content goes via `@children` between header and footer.
-//
-// Interaction: backdrop click closes (when dismiss-on-backdrop); clicks
-// INSIDE the panel are absorbed by a panel-wide TouchArea so they never fall
-// through to the Scrim. X button (top-right) and Escape also close.
+// Body content goes via `@children` (forwarded into the panel).
 
 import { Tokens } from "../theme/tokens.slint";
 import { Scrim } from "popup-helpers.slint";
-import { Button, ButtonVariant } from "button.slint";
-import { Separator, SeparatorOrientation } from "separator.slint";
-import { Icon } from "icon.slint";
-import { LucidePaths } from "lucide-paths.slint";
+import { DialogPanel } from "dialog-panel.slint";
 
 export component Dialog inherits Rectangle {
     in-out property <bool> open: false;
@@ -46,17 +43,12 @@ export component Dialog inherits Rectangle {
         }
     }
 
-    panel := Rectangle {
-        background: Tokens.color-card;
-        border-color: Tokens.color-border-hairline;
-        border-width: 1px;
-        border-radius: Tokens.radius-lg;     // shadcn dialog rounded-lg (10)
-        drop-shadow-blur:     Tokens.shadow-e3-blur;
-        drop-shadow-offset-y: Tokens.shadow-e3-offset-y;
-        drop-shadow-color:    Tokens.shadow-e3-color;
+    panel := DialogPanel {
+        title: root.title;
+        description: root.description;
+        close-label: root.close-label;
+        trap-focus: root.open;
 
-        width: 420px;
-        height: layout.preferred-height;
         x: (root.width - self.width) / 2;
         y: (root.height - self.height) / 2;
 
@@ -69,100 +61,19 @@ export component Dialog inherits Rectangle {
             easing: Tokens.motion-easing-standard;
         }
 
-        // Wrap content in a TouchArea so clicks on empty panel area are
-        // absorbed (clicked no-op) — they don't fall through to the Scrim
-        // behind. Nested controls (the footer Button, body inputs) still
-        // receive their own clicks via Slint's nested-TouchArea routing.
-        TouchArea {
-            clicked => { }
-
-            layout := VerticalLayout {
-                padding: Tokens.spacing-xl;       // p-6 (24)
-                spacing: Tokens.spacing-lg;       // gap-4 (16)
-
-                // Header
-                VerticalLayout {
-                    spacing: Tokens.spacing-sm;   // gap-2 (8)
-                    if root.title != "": Text {
-                        text: root.title;
-                        color: Tokens.color-foreground;
-                        font-size: Tokens.typography-title-size;
-                        font-weight: Tokens.typography-weight-semibold;
-                    }
-                    if root.description != "": Text {
-                        text: root.description;
-                        color: Tokens.color-muted-foreground;
-                        font-size: Tokens.typography-body-size;
-                        wrap: word-wrap;
-                    }
-                }
-
-                @children
-
-                Separator { orientation: SeparatorOrientation.horizontal; }
-
-                HorizontalLayout {
-                    alignment: end;
-                    Button {
-                        variant: ButtonVariant.default;
-                        text: root.close-label;
-                        clicked => {
-                            root.open = false;
-                            root.dismissed();
-                        }
-                    }
-                }
-            }
+        closed => {
+            root.open = false;
+            root.dismissed();
         }
 
-        // X close button, top-right (shadcn).
-        close-x := Rectangle {
-            x: parent.width - self.width - 12px;
-            y: 12px;
-            width: 28px;
-            height: 28px;
-            border-radius: Tokens.radius-sm;
-            background: x-touch.has-hover ? Tokens.color-accent : transparent;
-            Icon {
-                x: (parent.width - self.width) / 2;
-                y: (parent.height - self.height) / 2;
-                commands: LucidePaths.x-mark;
-                tint: Tokens.color-muted-foreground;
-                size: 16px;
-            }
-            x-touch := TouchArea {
-                mouse-cursor: pointer;
-                clicked => {
-                    root.open = false;
-                    root.dismissed();
-                }
-            }
-            animate background {
-                duration: Tokens.motion-fast;
-                easing: Tokens.motion-easing-standard;
-            }
-        }
+        @children
     }
 
     changed open => {
         if (self.open) {
-            focus-scope.focus();
+            panel.take-focus();
         }
     }
 
-    forward-focus: focus-scope;
-    focus-scope := FocusScope {
-        enabled: root.open;
-        key-pressed(event) => {
-            if (event.text == "\u{1b}") {
-                root.open = false;
-                root.dismissed();
-                return accept;
-            }
-            if (event.text == "\u{9}") {
-                return accept;   // trap Tab (single focusable footer button)
-            }
-            return reject;
-        }
-    }
+    forward-focus: panel;
 }

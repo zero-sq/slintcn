@@ -1,0 +1,105 @@
+// slintcn AlertDialogPanel — the headless destructive-confirm card (no Scrim,
+// no full-window mount). Mount it in your own overlay root, or use the
+// batteries-included `AlertDialog`.
+//
+// Public API:
+//   in property <string> title / description
+//   in property <string> action-label: "Continue" / cancel-label: "Cancel"
+//   in property <ButtonVariant> action-variant: ButtonVariant.destructive
+//   in property <bool> trap-focus: true   (Escape → cancelled(); Tab cycles)
+//   callback confirmed() / cancelled()
+//   public function take-focus()
+
+import { Tokens } from "../theme/tokens.slint";
+import { Button, ButtonVariant } from "button.slint";
+import { Separator, SeparatorOrientation } from "separator.slint";
+
+export component AlertDialogPanel inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <string> action-label: "Continue";
+    in property <string> cancel-label: "Cancel";
+    in property <ButtonVariant> action-variant: ButtonVariant.destructive;
+    in property <bool> trap-focus: true;
+    callback confirmed();
+    callback cancelled();
+
+    // Focus trap state: 0 = Cancel (default), 1 = Action.
+    in-out property <int> trap-index: 0;
+
+    background: Tokens.color-card;
+    border-color: Tokens.color-border-hairline;
+    border-width: 1px;
+    border-radius: Tokens.radius-lg;
+    drop-shadow-blur:     Tokens.shadow-e3-blur;
+    drop-shadow-offset-y: Tokens.shadow-e3-offset-y;
+    drop-shadow-color:    Tokens.shadow-e3-color;
+
+    width: 420px;
+    height: layout.preferred-height;
+
+    TouchArea {
+        clicked => { }
+        layout := VerticalLayout {
+            padding: Tokens.spacing-xl;
+            spacing: Tokens.spacing-lg;
+
+            VerticalLayout {
+                spacing: Tokens.spacing-sm;
+                if root.title != "": Text {
+                    text: root.title;
+                    color: Tokens.color-foreground;
+                    font-size: Tokens.typography-title-size;
+                    font-weight: Tokens.typography-weight-semibold;
+                }
+                if root.description != "": Text {
+                    text: root.description;
+                    color: Tokens.color-muted-foreground;
+                    font-size: Tokens.typography-body-size;
+                    wrap: word-wrap;
+                }
+            }
+
+            Separator { orientation: SeparatorOrientation.horizontal; }
+
+            HorizontalLayout {
+                alignment: end;
+                spacing: Tokens.spacing-sm;
+                cancel-btn := Button {
+                    variant: ButtonVariant.outline;
+                    text: root.cancel-label;
+                    clicked => { root.cancelled(); }
+                }
+                action-btn := Button {
+                    variant: root.action-variant;
+                    text: root.action-label;
+                    clicked => { root.confirmed(); }
+                }
+            }
+        }
+    }
+
+    public function take-focus() {
+        root.trap-index = 0;
+        cancel-btn.focus();
+    }
+
+    forward-focus: focus-scope;
+    focus-scope := FocusScope {
+        enabled: root.trap-focus;
+        key-pressed(event) => {
+            if (event.text == "\u{1b}") {
+                root.cancelled();
+                return accept;
+            }
+            // Tab / Shift+Tab flip between Cancel (0) and Action (1).
+            if (event.text == "\u{9}") {
+                root.trap-index = root.trap-index == 0 ? 1 : 0;
+                if (root.trap-index == 0) { cancel-btn.focus(); }
+                else                       { action-btn.focus(); }
+                return accept;
+            }
+            return reject;
+        }
+    }
+}

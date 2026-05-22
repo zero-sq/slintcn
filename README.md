@@ -75,7 +75,8 @@ node /path/to/slintcn/bin/slintcn.mjs add button card input dialog
 | **v0.17** | **Docs IA** — showcase as a docs site: install command + usage code per component section | ✅ |
 | **v0.18** | **Docs site (ui.shadcn.com clone)** — generated per-component pages with live WASM preview + install tabs + usage code + sidebar IA at `/docs` | ✅ |
 | **v0.19** | **Adoption mode** — install into an existing design system: external tokens, import map, filename style, dry-run/diff/no-overwrite, lockfile, `export` | ✅ |
-| **v0.20** | Adoption W2 — external enums (`--no-local-enums`) + headless Dialog→DialogPanel split | upcoming |
+| **v0.20** | **Adoption W2** — headless overlay panels (DialogPanel/AlertDialogPanel/SheetPanel) + external enums (`--external-enums`) | ✅ |
+| **v0.21** | Adoption W3 — richer registry metadata (variants/sizes matrix + a11y/behavior contract) | upcoming |
 | **v1.0** | Game HUD registry expansion — hotbar, reticle, full keycap hints | later |
 
 SaaS-first is a **wedge**, not a ceiling. Once tokens + motion + hover semantics
@@ -165,6 +166,7 @@ slintcn add button card \
 | Flag / `slintcn.json` key | Effect |
 |---|---|
 | `--external-tokens <path>` / `externalTokens` | Don't install the theme; rewrite every `import { Tokens } from "../theme/tokens.slint"` to `<path>`. Your file must export a `Tokens` global with the roles components read. |
+| `--external-enums <dir>` / `externalEnums` | Strip each component's local `export enum`s and import (+ re-export) them from `<dir>/<name>.slint` — for consumers whose enums are generated elsewhere. |
 | `--components-dir <dir>` / `componentsDir` (also `themeDir`/`blocksDir`) | Where files land — fully relocatable; imports are rewritten to match. |
 | `--filename-style snake` / `fileNameStyle` | `kebab` (default) or `snake` — `slot-tile.slint → slot_tile.slint`, and sibling/cross-file imports follow. |
 | `--import-map <file.json>` / `importMap` | Arbitrary `{ "<import>": "<target>" }` overrides, highest precedence. |
@@ -178,6 +180,12 @@ records `slintcn.lock.json` (a sha256 per written file). Then:
 slintcn diff button     # unified diff: installed (rewritten for your config) vs registry
                         # annotates "locally modified since install" vs "upstream changed"
 ```
+
+**Headless overlay panels.** If you have your own modal root, install the panel
+without the backdrop/mount machinery: `dialog-panel` (`DialogPanel`),
+`alert-dialog-panel` (`AlertDialogPanel`), `sheet-panel` (`SheetPanel`). The
+batteries-included `Dialog`/`AlertDialog`/`Sheet` are these panels composed with
+a `Scrim` + full-window mount.
 
 **Feed your own codegen.** `export` emits one resolved item as JSON — metadata
 plus file content **already rewritten for your config** — so a monorepo codegen

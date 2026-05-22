@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
-import { resolveConfig, routeDest, rewriteImports, styleFileName, unifiedDiff } from "../slintcn.mjs";
+import { resolveConfig, routeDest, rewriteImports, styleFileName, unifiedDiff, stripLocalEnums } from "../slintcn.mjs";
 
 const cwd = "/proj";
 const CLI = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "slintcn.mjs");
@@ -56,6 +56,29 @@ test("unifiedDiff: marks added / removed lines", () => {
   assert.ok(d.includes("- b"));
   assert.ok(d.includes("+ x"));
   assert.ok(d.includes("  a"));
+});
+
+test("stripLocalEnums: strips enums, imports + re-exports them", () => {
+  const src = `// header\nexport enum ButtonVariant { default, outline }\nexport enum ButtonSize { sm, lg }\nexport component Button {}\n`;
+  const out = stripLocalEnums(src, "../gen/button.slint");
+  assert.ok(!/export enum/.test(out), "no local enum left");
+  assert.match(out, /import \{ ButtonVariant, ButtonSize \} from "\.\.\/gen\/button\.slint"/);
+  assert.match(out, /export \{ ButtonVariant, ButtonSize \}/);
+  assert.match(out, /export component Button/);
+});
+
+test("stripLocalEnums: no-op when the file declares no enums", () => {
+  const src = `export component Input {}\n`;
+  assert.equal(stripLocalEnums(src, "x"), src);
+});
+
+test("add --external-enums strips the component's local enums", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "slintcn-enums-"));
+  spawnSync("node", [CLI, "add", "button", "--external-enums", "gen/enums"], { cwd: dir, encoding: "utf8" });
+  const out = await readFile(path.join(dir, "ui/slintcn/components/button.slint"), "utf8");
+  assert.ok(!/export enum/.test(out), "no local enum");
+  assert.match(out, /from "[.\/]*gen\/enums\/button\.slint"/);
+  await rm(dir, { recursive: true, force: true });
 });
 
 test("add --dry-run writes nothing", async () => {

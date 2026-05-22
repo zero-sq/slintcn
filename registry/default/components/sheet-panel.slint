@@ -1,0 +1,51 @@
+// slintcn SheetPanel — the headless drawer card surface (no Scrim, no slide,
+// no full-window mount). Mount + position it in your own overlay root, or use
+// the batteries-included `Sheet` (which adds the backdrop + slide animation).
+//
+// The consumer (or `Sheet`) sets width/height/x/y. This component only
+// provides the styled surface + header + a `@children` body slot.
+//
+// Public API:
+//   in property <string> title / description
+
+import { Tokens } from "../theme/tokens.slint";
+
+export component SheetPanel inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+
+    background: Tokens.color-card;
+    border-color: Tokens.color-border-hairline;
+    border-width: 1px;
+    drop-shadow-blur:     Tokens.shadow-e3-blur;
+    drop-shadow-offset-y: Tokens.shadow-e3-offset-y;
+    drop-shadow-color:    Tokens.shadow-e3-color;
+
+    // Clicks on empty panel area are absorbed; nested controls still receive
+    // their own clicks via Slint's nested-TouchArea routing.
+    TouchArea {
+        clicked => { }
+        VerticalLayout {
+            padding: Tokens.spacing-xl;
+            spacing: Tokens.spacing-lg;
+
+            VerticalLayout {
+                spacing: Tokens.spacing-sm;
+                if root.title != "": Text {
+                    text: root.title;
+                    color: Tokens.color-foreground;
+                    font-size: Tokens.typography-title-size;
+                    font-weight: Tokens.typography-weight-semibold;
+                }
+                if root.description != "": Text {
+                    text: root.description;
+                    color: Tokens.color-muted-foreground;
+                    font-size: Tokens.typography-body-size;
+                    wrap: word-wrap;
+                }
+            }
+
+            @children
+        }
+    }
+}

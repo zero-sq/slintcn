@@ -40,7 +40,7 @@
   .hero { text-align: center; padding: 96px 0 64px; }
   .hero .tag { display: inline-block; font-size: 13px; color: var(--muted); border: 1px solid var(--line);
     border-radius: 999px; padding: 5px 12px; margin-bottom: 28px; }
-  .hero h1 { font-size: 56px; line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 20px; font-weight: 700; }
+  .hero h1 { font-size: clamp(32px, 8.5vw, 56px); line-height: 1.06; letter-spacing: -0.03em; margin: 0 0 20px; font-weight: 700; }
   .hero h1 .grad { background: linear-gradient(180deg,#fff,#a1a1a1); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .hero p { font-size: 19px; color: var(--muted); max-width: 620px; margin: 0 auto 32px; }
   .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
@@ -84,8 +84,17 @@
   footer a:hover { color: var(--fg); }
 
   @media (max-width: 760px) {
-    .hero h1 { font-size: 40px; }
     .features, .gallery { grid-template-columns: 1fr; }
+    .hero { padding: 56px 0 48px; }
+    .hero p { font-size: 16px; }
+    .hero .tag { max-width: 100%; }   /* long tag wraps instead of widening the page */
+    /* Keep the nav on one tidy row: tighter, and drop the version pill. */
+    nav .wrap { gap: 14px; }
+    nav a.link { font-size: 13px; }
+    .logo .pill { display: none; }
+    /* Long install commands scroll inside their box instead of widening the page. */
+    .install { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    section.block { padding: 44px 0; }
   }
 </style>
 </head>

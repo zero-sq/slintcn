@@ -1,12 +1,13 @@
 # slintcn
 
 [![Pages](https://github.com/stevekwon211/slintcn/actions/workflows/pages.yml/badge.svg)](https://github.com/stevekwon211/slintcn/actions/workflows/pages.yml)
+[![crates.io](https://img.shields.io/crates/v/slintcn?color=white&label=crates.io)](https://crates.io/crates/slintcn)
 [![npm](https://img.shields.io/npm/v/slintcn?color=white)](https://www.npmjs.com/package/slintcn)
 [![License: MIT](https://img.shields.io/badge/License-MIT-white.svg)](LICENSE)
 
 **shadcn/ui-style copy-paste components for Slint native apps.**
 
-[Live docs](https://stevekwon211.github.io/slintcn/docs/) · [Live demo](https://stevekwon211.github.io/slintcn) · [npm](https://www.npmjs.com/package/slintcn)
+[Live docs](https://stevekwon211.github.io/slintcn/docs/) · [Live demo](https://stevekwon211.github.io/slintcn) · [crates.io](https://crates.io/crates/slintcn) · [npm](https://www.npmjs.com/package/slintcn)
 
 56 UI components, 8 installable blocks, a theme system, and a static registry you can host yourself.
 
@@ -18,6 +19,22 @@
 
 ## Install
 
+Two interchangeable CLIs install the **same files** from the **same hosted
+registry** — pick whichever runtime you already have.
+
+**cargo** (no Node required — if you build Slint apps, you already have this):
+
+```bash
+cargo install slintcn
+
+cd your-slint-app
+slintcn init --base-color zinc
+slintcn add button card input dialog
+# also available as a cargo subcommand: `cargo slintcn add data-table`
+```
+
+**npm:**
+
 ```bash
 cd your-slint-app
 npx slintcn@latest init
@@ -26,7 +43,12 @@ npx slintcn@latest add button card input dialog
 
 Files land in `ui/slintcn/` — **you own them**. Change colors in
 `ui/slintcn/theme/tokens.slint`, tweak `button.slint` for your product, or host
-your own registry.
+your own registry. A project initialized by either CLI works with the other —
+they share the `slintcn.json` config and lockfile.
+
+> The npm CLI carries the full adoption toolkit (`diff`, `export`,
+> `--external-tokens`, `--import-map`, …). The cargo CLI covers the core
+> install path — `init` / `add` / `list` / `view` — for the zero-Node case.
 
 ## Why it exists
 
@@ -93,6 +115,7 @@ node /path/to/slintcn/bin/slintcn.mjs add button card input dialog
 | **v0.31** | **MCP server** — `slintcn-mcp` bin exposes the registry to MCP-capable AI agents (Claude Desktop, Cursor, Windsurf). Tools: `list_components`, `list_blocks`, `view_component`, `install_command` | ✅ |
 | **v0.32** | **Directory page** — `/docs/directory` lists community + official registries; entries land via PR to `registry/directory.json` (ecosystem discovery surface) | ✅ |
 | **v0.33** | **Discovery + completion** — per-component snapshot pipeline (64 PNGs via `--previews`), `/create` preset page (pick components → copy install command), gallery + README hero refresh | ✅ |
+| **v0.34** | **cargo-native installer** — `cargo install slintcn` (+ `cargo slintcn` subcommand) installs from the hosted registry with no Node; base-color palette variants inlined into the registry so any client can pick them | ✅ |
 
 SaaS-first is a **wedge**, not a ceiling. Once tokens + motion + hover semantics
 exist, a second registry (`registry/game/`) is just more `.slint` files.
@@ -100,7 +123,8 @@ exist, a second registry (`registry/game/`) is just more `.slint` files.
 ## Prerequisites
 
 - **Rust** with Slint 1.16 (for the showcase or your Slint app)
-- **Node 20+** (the CLI runtime)
+- A CLI runtime — **either** `cargo` (via `cargo install slintcn`, no Node) **or**
+  **Node 20+** (via `npx slintcn`). You almost certainly already have cargo.
 
 ```slint
 import { Button, ButtonVariant, ButtonSize } from "slintcn/components/button.slint";

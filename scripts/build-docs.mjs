@@ -30,6 +30,7 @@ const escAttr = (s) => esc(s).replace(/"/g, "&quot;");
 
 function installCommands(name) {
   return {
+    cargo: `cargo slintcn add ${name}`,
     npm: `npx slintcn@latest add ${name}`,
     pnpm: `pnpm dlx slintcn@latest add ${name}`,
     yarn: `yarn dlx slintcn@latest add ${name}`,
@@ -116,7 +117,7 @@ function page(item, prev, next, items, api = { enums: {}, a11y: null, props: [] 
     ${next ? `<a href="./${next.name}.html" class="pn">${esc(next.title)} →</a>` : `<span></span>`}
   </div>`;
 
-  const pmPills = ["npm", "pnpm", "yarn", "bun"]
+  const pmPills = ["cargo", "npm", "pnpm", "yarn", "bun"]
     .map((pm, i) => `<button class="pm${i === 0 ? " active" : ""}" data-pm="${pm}">${pm}</button>`)
     .join("");
   const cmdData = Object.entries(cmds)
@@ -153,7 +154,7 @@ ${sidebar(items, item.name)}
   <h2 id="installation">Installation</h2>
   <div class="install" ${cmdData}>
     <div class="pm-row">${pmPills}</div>
-    <div class="cmd-row"><code class="cmd">${esc(cmds.npm)}</code><button class="copy" data-copy="cmd">Copy</button></div>
+    <div class="cmd-row"><code class="cmd">${esc(cmds.cargo)}</code><button class="copy" data-copy="cmd">Copy</button></div>
   </div>
 
   <h2 id="usage">Usage</h2>

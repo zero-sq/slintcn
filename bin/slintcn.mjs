@@ -60,7 +60,19 @@ export async function buildRegistryItem(name, registry, readSource) {
   if (!item) throw new Error(`Unknown item: ${name}`);
   const files = [];
   for (const rel of item.files) {
-    files.push({ path: rel, content: await readSource(rel), type: "text/slint" });
+    const file = { path: rel, content: await readSource(rel), type: "text/slint" };
+    // Inline base-color palette alternates so any client (cargo CLI, remote
+    // install) can swap them without a second request or local registry copy.
+    if (rel === "theme/palette.slint") {
+      const variants = {};
+      for (const color of ["zinc", "slate", "stone"]) {
+        try {
+          variants[color] = await readSource(`theme/palette-${color}.slint`);
+        } catch { /* variant not present — skip */ }
+      }
+      if (Object.keys(variants).length > 0) file.variants = variants;
+    }
+    files.push(file);
   }
   return {
     name,

@@ -1,0 +1,36 @@
+[package]
+name = "slintcn"
+version = "0.34.0"
+edition = "2021"
+rust-version = "1.74"
+description = "Copy-paste Slint UI components — the cargo-native installer for the slintcn registry (no Node required)."
+license = "MIT"
+repository = "https://github.com/stevekwon211/slintcn"
+homepage = "https://stevekwon211.github.io/slintcn/"
+readme = "README.md"
+keywords = ["slint", "ui", "components", "cli", "shadcn"]
+categories = ["command-line-utilities", "gui"]
+
+[lib]
+name = "slintcn"
+path = "src/lib.rs"
+
+[[bin]]
+name = "slintcn"
+path = "src/main.rs"
+
+# Lets `cargo install slintcn` also expose `cargo slintcn <cmd>` (cargo invokes
+# `cargo-slintcn slintcn <args>` for the subcommand form).
+[[bin]]
+name = "cargo-slintcn"
+path = "src/bin/cargo-slintcn.rs"
+
+[dependencies]
+ureq = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true

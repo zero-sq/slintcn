@@ -6,7 +6,7 @@
 <title>slintcn: copy-paste components for Slint</title>
 <meta name="description" content="Copy-paste UI components for Slint. Like shadcn, for native apps. The CLI drops the source into your project and you own it. 56 components, 8 blocks, a dark theme, and a HUD layer for tools and games.">
 <meta property="og:title" content="slintcn: copy-paste components for Slint">
-<meta property="og:description" content="Like shadcn, for Slint. Install the source into your app and own it. npx slintcn add button">
+<meta property="og:description" content="Like shadcn, for Slint. Install the source into your app and own it. cargo install slintcn (no Node needed) or npx slintcn add button">
 <meta property="og:image" content="img/section-6-dashboard.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fafafa%22&gt;&lt;circle cx=%2212%22 cy=%2212%22 r=%229%22 fill=%22%23171717%22 stroke=%22%23fafafa%22 stroke-width=%221.5%22/&gt;&lt;/svg&gt;">
 <style>
@@ -168,11 +168,13 @@
   <div class="wrap">
     <div class="eyebrow">Get started</div>
     <h2>Three commands.</h2>
-    <p class="lede">You need Node 20+ and a Slint project. Files land in <code>ui/slintcn/</code> and they're yours.</p>
+    <p class="lede">Use <strong>cargo</strong> (no Node — you already have it) or <strong>npx</strong>, whichever you prefer.
+       Files land in <code>ui/slintcn/</code> and they're yours.</p>
     <div class="install" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;font-size:13px;line-height:1.9;">
-      <div><span class="dollar">$</span> npx slintcn@latest init</div>
-      <div><span class="dollar">$</span> npx slintcn@latest add button card dialog</div>
-      <div><span class="dollar">$</span> npx slintcn@latest list <span style="color:var(--subtle)"># browse the catalog</span></div>
+      <div><span class="dollar">$</span> cargo install slintcn</div>
+      <div><span class="dollar">$</span> cargo slintcn init</div>
+      <div><span class="dollar">$</span> cargo slintcn add button card dialog</div>
+      <div style="color:var(--subtle);margin-top:4px">…or <code>npx slintcn@latest add button card dialog</code> if you live in Node.</div>
     </div>
   </div>
 </section>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Create your install — slintcn</title>
-<meta name="description" content="Pick a base color + the slintcn components you want; the page emits the exact npx commands to install them.">
+<meta name="description" content="Pick a base color + the slintcn components you want; the page emits the exact cargo or npx command to install them.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fafafa%22&gt;&lt;circle cx=%2212%22 cy=%2212%22 r=%229%22 fill=%22%23171717%22 stroke=%22%23fafafa%22 stroke-width=%221.5%22/&gt;&lt;/svg&gt;">
 <style>
   :root {
@@ -82,6 +82,12 @@
   aside .card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card);
     padding: 18px; }
   aside h3 { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
+  aside .pm-toggle { display: flex; gap: 6px; margin-bottom: 12px; }
+  aside .pm-toggle .pm { flex: 1; height: 30px; border-radius: 7px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--muted); font-family: var(--mono); font-size: 12px;
+    font-weight: 600; cursor: pointer; transition: background 150ms, color 150ms; }
+  aside .pm-toggle .pm:hover { background: var(--surface-2); }
+  aside .pm-toggle .pm.active { background: var(--fg); color: #0a0a0a; border-color: var(--fg); }
   aside .count { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
   aside pre { margin: 0; padding: 14px; background: var(--surface); border: 1px solid var(--line);
     border-radius: 8px; font-family: var(--mono); font-size: 12px; color: var(--fg);
@@ -116,7 +122,7 @@
   <header class="hero">
     <h1>Create your install</h1>
     <p>Pick a base color and the components you want. The right pane builds the exact
-       <code>npx</code> command to drop them into your Slint project.</p>
+       <code>cargo</code> or <code>npx</code> command to drop them into your Slint project.</p>
   </header>
 
   <div class="grid">
@@ -137,8 +143,13 @@
     <aside>
       <div class="card">
         <h3>Your install</h3>
+        <div class="pm-toggle" id="pm-toggle">
+          <button class="pm active" data-pm="cargo">cargo</button>
+          <button class="pm" data-pm="npm">npm</button>
+        </div>
         <div class="count" id="count">0 items selected — pick what you want on the left.</div>
-        <pre id="out">npx slintcn@latest init --base-color neutral</pre>
+        <pre id="out">cargo install slintcn
+cargo slintcn init --base-color neutral</pre>
         <div class="row-actions">
           <button id="copy" class="primary">Copy</button>
           <button id="clear">Clear</button>
@@ -175,16 +186,21 @@
 
   const selected = new Set();
   let base = "neutral";
+  let pm = "cargo"; // "cargo" (no Node) or "npm"
 
   function rebuildCommand() {
-    const init = `npx slintcn@latest init --base-color ${base}`;
+    const names = [...selected].sort().join(" ");
     const out = document.getElementById("out");
-    if (!selected.size) {
-      out.textContent = init;
+    let lines;
+    if (pm === "cargo") {
+      // cargo needs the binary installed once; npx fetches per-invocation.
+      lines = ["cargo install slintcn", `cargo slintcn init --base-color ${base}`];
+      if (selected.size) lines.push(`cargo slintcn add ${names}`);
     } else {
-      const add = `npx slintcn@latest add ${[...selected].sort().join(" ")}`;
-      out.textContent = `${init}\n${add}`;
+      lines = [`npx slintcn@latest init --base-color ${base}`];
+      if (selected.size) lines.push(`npx slintcn@latest add ${names}`);
     }
+    out.textContent = lines.join("\n");
     const c = document.getElementById("count");
     c.textContent = selected.size
       ? `${selected.size} item${selected.size > 1 ? "s" : ""} selected.`
@@ -251,6 +267,14 @@
 
   document.getElementById("bases").addEventListener("change", (e) => {
     if (e.target.name === "base") { base = e.target.value; rebuildCommand(); }
+  });
+
+  document.getElementById("pm-toggle").addEventListener("click", (e) => {
+    const btn = e.target.closest(".pm");
+    if (!btn) return;
+    pm = btn.dataset.pm;
+    document.querySelectorAll("#pm-toggle .pm").forEach((b) => b.classList.toggle("active", b === btn));
+    rebuildCommand();
   });
 
   document.getElementById("copy").addEventListener("click", () => {

@@ -1,7 +1,7 @@
-.PHONY: verify test build clippy clean snapshot snapshot-previews
+.PHONY: verify test build clippy cli clean snapshot snapshot-previews
 
 # Single command for local pre-commit hygiene.
-verify: test build clippy
+verify: test build clippy cli
 
 test:
 	npm test
@@ -11,6 +11,11 @@ build:
 
 clippy:
 	cd examples/showcase && cargo clippy --quiet -- -D warnings
+
+# The cargo-native CLI: build, test, and lint the installer crate.
+cli:
+	cd cli && cargo test --quiet
+	cd cli && cargo clippy --quiet --all-targets -- -D warnings
 
 # Headless render the showcase to docs/img/snapshots/ via Slint's
 # SoftwareRenderer (no display server required).

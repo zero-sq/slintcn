@@ -1,6 +1,36 @@
 # slintcn roadmap
 
-## v0.33 — Discovery + completion (current)
+## v0.34 — cargo-native installer (current)
+
+Answers the most-requested distribution gap (Reddit: *"Not everyone has npm…
+isn't there a way via cargo?"*). The registry is plain static JSON with the
+Slint source embedded — the CLI is just transport — so a second front-end is
+cheap and the two are interchangeable over one source of truth.
+
+- [x] **New `slintcn` crate (`cli/`).** Standalone Rust crate published to
+      crates.io. `cargo install slintcn` exposes two binaries: `slintcn` and
+      `cargo-slintcn` (so `cargo slintcn add …` works as a subcommand). Deps
+      kept minimal — `ureq` (rustls) + `serde` + `serde_json`, no async
+      runtime, no Node.
+- [x] **Commands `init` / `add` / `list` / `view`.** `add` fetches
+      `/r/<name>.json`, resolves `registryDependencies` recursively against
+      the item URL's own directory, dedupes, and writes each file verbatim —
+      the default `ui/slintcn/` layout makes the registry's relative imports
+      resolve without rewriting. Honors `slintcn.json` (shared with the npm
+      CLI) + `--base-color` / `--registry` overrides.
+- [x] **Base-color variants inlined into the registry.** `buildRegistryItem`
+      now attaches `theme/palette.slint`'s `zinc`/`slate`/`stone` alternates as
+      a `variants` map, so the cargo CLI (and the npm *remote*-install path,
+      which previously ignored base-color) can pick a palette without a second
+      request or a local registry copy.
+- [x] **Pipeline is unit-tested with an injected `Fetcher`** (no network/disk):
+      dependency resolution, dedup, base-color swap, and the full `run_with`
+      add/init flow. `make verify` now gates `cli` (test + clippy `-D warnings`).
+- [x] npm CLI unchanged — it keeps the full adoption toolkit (`diff`/`export`/
+      `--external-tokens`/`--import-map`). The cargo CLI is the zero-Node core
+      path; existing users are unaffected.
+
+## v0.33 — Discovery + completion
 
 Closes the visual coverage + Tooling track gaps in one substantial wave.
 
@@ -219,6 +249,7 @@ heavy, separate R&D track; the Game/HUD layer is the long-term differentiator.
 - **MCP server** shipped in v0.31.
 - **Directory page** shipped in v0.32.
 - **`/create` preset page** shipped in v0.33.
+- **cargo-native installer** shipped in v0.34 (`cargo install slintcn`).
 
 ### v1.0+ — Game / HUD round-out (the differentiator)
 - Hotbar / Reticle / CompassStrip shipped in v0.30. Future: health / mana /

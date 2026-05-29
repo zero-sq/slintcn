@@ -1,6 +1,6 @@
 [package]
 name = "slintcn"
-version = "0.34.0"
+version = "0.35.0"
 edition = "2021"
 rust-version = "1.74"
 description = "Copy-paste Slint UI components — the cargo-native installer for the slintcn registry (no Node required)."
